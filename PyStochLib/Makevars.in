@@ -1,0 +1,11 @@
+PYTHON_HOME = @PYTHON_HOME@
+
+PYTHON_INCLUDE = -I@PYTHON_HOME@/include/python2.7
+PYTHON_LIB = -L@PYTHON_HOME@/lib -lpython2.7
+
+BOOST_INCLUDE = -I/usr/lib/boost_1_53_0 -I/usr/lib/boost_1_53_0/stage/lib
+BOOST_LINK = -L/usr/lib/boost_1_53_0 -L/usr/lib/boost_1_53_0/stage/lib
+BOOST_LIB = -lboost_python -lpython2.7
+
+PKG_CXXFLAGS = -g -O2 -I. $(SHLIB_OPENMP_CXXFLAGS) -I@PYTHON_HOME@/include/python2.7 $(BOOST_INCLUDE)
+PKG_LIBS = @RCPP_PKG_LIBS@ -L@PYTHON_HOME@/lib -lpython2.7 $(SHLIB_OPENMP_CXXFLAGS) $(BOOST_LINK) $(BOOST_LIB)

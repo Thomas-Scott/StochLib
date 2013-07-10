@@ -1,0 +1,7 @@
+.DS_STORE
+*.o
+*.pyc
+*.os
+*.so
+*.dylib
+*.sublime*
