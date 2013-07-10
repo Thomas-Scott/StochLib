@@ -3,7 +3,7 @@
 CXX = g++
 CXXFLAGS = -O3 -Wall -fopenmp
 
-INCLUDE_PATH = -I/usr/lib/boost_1_53_0 -I$(PYTHON_HOME)/include/python2.7 -I/usr/lib/boost_1_53_0/stage/lib 
+INCLUDE_PATH = -I/usr/lib/boost_1_53_0 -I$(PYTHON_HOME)/include/python2.7 -I/usr/lib/boost_1_53_0/stage/lib
 LINK_PATH =  -L/usr/lib/boost_1_53_0 -L$(PYTHON_HOME)/lib -L/usr/lib/boost_1_53_0/stage/lib
 LINK_LIBS = -lboost_python -lpython2.7
 
@@ -12,11 +12,11 @@ STOCHLIB_OBJS = Output.o Model.o SSADirectSerial.o
 COMPILEOPTIONS = -c $(CXXFLAGS) $(INCLUDE_PATH) 
 ALLOPTIONS = $(CXXFLAGS) $(INCLUDE_PATH) $(LINK_PATH) $(LINK_LIBS)
 
-all: PyLibrary
+all: StochLib
 
-PyLibrary: DriverDecs.h PyStochLib.cpp $(STOCHLIB_OBJS)
-	$(CXX) PyStochLib.cpp -o PyStochLib.os -fPIC $(COMPILEOPTIONS)
-	$(CXX) -o PyStochLib.so -shared PyStochLib.os $(STOCHLIB_OBJS) $(ALLOPTIONS)
+StochLib: DriverDecs.h PyStochLib.cpp $(STOCHLIB_OBJS)
+	$(CXX) PyStochLib.cpp -o StochLib.os -fPIC $(COMPILEOPTIONS)
+	$(CXX) -o $(LIB)/StochLib.so -shared StochLib.os $(STOCHLIB_OBJS) $(ALLOPTIONS)
 
 SSADirectSerial.o: SSADirectSerial.cpp 
 	$(CXX) SSADirectSerial.cpp -o SSADirectSerial.o $(COMPILEOPTIONS)

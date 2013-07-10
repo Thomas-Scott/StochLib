@@ -17,14 +17,14 @@ def ssaDirectSerial(model_name="",parallel=False):
 	if(model_name!=""):
 		if(parallel==False):
 			print "Running ssa_direct_serial..."
-			StochLib.ssaDirectSerial(model_name)
+			PyStochLib.ssaDirectSerial(model_name)
 			print "Done"
 		elif(parallel==True):
 			print "Running ssa_direct_serial in parallel..."
-			StochLib.parallelSSADirectSerial(model_name)
+			PyStochLib.parallelSSADirectSerial(model_name)
 			print "Done"
 	else:
 		print "Not a model..."
 
 def count():
-	StochLib.count()
+	PyStochLib.count()

@@ -9,4 +9,7 @@ if [ "$PYTHON_HOME" == "" ]; then
   popd > /dev/null
 fi
 
+mkdir -p StochLib
+export LIB='./StochLib'
+
 make
