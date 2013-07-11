@@ -19,11 +19,12 @@ void StochLib::ssaDirectSerial(){
 	return;
 }
 
-
+#if defined(_OPENMP)
 void StochLib::parallelSSADirectSerial(){
 	ssaDirectSerial();
 	return;
 }
+#endif //_OPENMP_
 
 void StochLib::count(){
 	std::ofstream out;

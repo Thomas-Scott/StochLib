@@ -5,6 +5,7 @@
 #define __DRIVER_DECS__
 using namespace StochLib;
 
+#if defined(_OPENMP)
 //[[Rcpp::Export]]
 void _parallel_ssaDirectSerial(std::string str){
 	char* modelName = new char[str.size()+1];
@@ -16,6 +17,7 @@ void _parallel_ssaDirectSerial(std::string str){
 	delete [] modelName;
 	return;
 }
+#endif
 
 //[[Rcpp::Export]]
 void _ssaDirectSerial(std::string str){

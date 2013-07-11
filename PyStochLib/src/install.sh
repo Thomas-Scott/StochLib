@@ -10,6 +10,6 @@ if [ "$PYTHON_HOME" == "" ]; then
 fi
 
 mkdir -p StochLib
-export LIB='./StochLib'
+export LIB='../StochLib'
 
 make

@@ -5,3 +5,6 @@
 *.so
 *.dylib
 *.sublime*
+*.Rcheck
+*.tar.gz
+*.rds
