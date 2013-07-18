@@ -17,7 +17,7 @@ void _parallel_ssaDirectSerial(std::string str){
 	delete [] modelName;
 	return;
 }
-#endif
+#endif //_OPENMP 
 
 //[[Rcpp::Export]]
 void _ssaDirectSerial(std::string str){

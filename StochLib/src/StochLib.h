@@ -7,6 +7,7 @@
 
 namespace StochLib{
 	void parallelSSADirectSerial();
+	void ssa_direct_serial(int ac, char* av[]);
 	void ssaDirectSerial();
 	void count();
 }

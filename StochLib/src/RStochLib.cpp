@@ -1,5 +1,7 @@
+// [[Rcpp::depends(BH)]]
 #include <Rcpp.h>
 #include "DriverDecs.h"
+
 
 RCPP_MODULE(StochLib){
 	Rcpp::function( "ssaDirectSerial", &_ssaDirectSerial );
