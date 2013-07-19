@@ -206,6 +206,19 @@ std::string CommandLineInterface::getCmdArgs() const {
 }
 
 void CommandLineInterface::parse(int ac, char* av[]) {
+	/*
+
+	if(cmdOptionExists(argv, argv+argc, "-h")){
+
+    }
+
+    char * filename = getCmdOption(argv, argv + argc, "-f");
+
+    if (filename){
+
+    }
+
+	*/
 	try {
 		boost::program_options::store(boost::program_options::parse_command_line(ac,av,combined), vm);
 	}
@@ -261,7 +274,7 @@ void CommandLineInterface::parse(int ac, char* av[]) {
 	if (epsilon<=0.0 || epsilon>=1.0) {
 		std::cout << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.  Run with --help for more info.\n";
 		exit(1);  
-	}
+	}/
 
 	if (vm.count("species")) {
 		species=vm["species"].as<std::vector<std::string> >();

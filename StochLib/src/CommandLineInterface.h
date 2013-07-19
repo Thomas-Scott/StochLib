@@ -5,11 +5,12 @@
 #define _COMMAND_LINE_INTERFACE_H_
 
 #include <iostream>
+#include <sstream>
 #include <string>
+#include <algorithm>
 #include <vector>
 #include <exception>
-#include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
+#include <cstdlib>
 #include "Input_tag.h"
 #include "ModelTag.h"
 #include "DenseVectorSubset.h"
@@ -75,11 +76,8 @@ namespace StochLib
 
 
  private:
-    
-  boost::program_options::variables_map vm;
-  boost::program_options::options_description visible;
-  boost::program_options::options_description hidden;
-  boost::program_options::options_description combined;
+
+  std::map<std::string, variable_value> vm;
   
   std::string modelFileName;
   double simulationTime;
