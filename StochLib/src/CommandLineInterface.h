@@ -7,10 +7,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <algorithm>
 #include <vector>
 #include <exception>
-#include <cstdlib>
+#include <algorithm>
 #include "Input_tag.h"
 #include "ModelTag.h"
 #include "DenseVectorSubset.h"
@@ -22,7 +21,7 @@ namespace StochLib
 	
  public:
   
-  CommandLineInterface(int ac, char* av[]);
+  CommandLineInterface(std::string str);
 
   std::string getModelFileName() const;
 
@@ -72,13 +71,23 @@ namespace StochLib
   std::string getCmdArgs() const;
 
  protected:
-  void parse(int ac, char* av[]);
+  void parse_command_line(int ac, char* av[]);
+  char **  parseString(std::string str,int &ac);
+  std::vector<std::string> splitString( const std::string& str);
+  std::vector<std::string> getCmdOptionList(char ** begin, char ** end, const std::string & option);
+  bool cmdOptionExists(char** begin, char** end, const std::string& option);
+  char * getCmdOption(char ** begin, char ** end, const std::string & option);
 
 
  private:
+  //boost::program_options::variables_map vm;
 
-  std::map<std::string, variable_value> vm;
-  
+  /*boost::program_options::options_description visible;
+  boost::program_options::options_description hidden;
+  boost::program_options::options_description combined;
+  */
+ // std::map<std::string, boost::program_options::variable_value> vm;
+
   std::string modelFileName;
   double simulationTime;
   std::size_t realizations;

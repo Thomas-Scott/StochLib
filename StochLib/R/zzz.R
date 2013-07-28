@@ -22,9 +22,9 @@
     }
     library.dynam("StochLib", pkgname, libname)
     ##loadModule("StochLib",TRUE)
-	library.dynam("boost_filesystem",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_filesystem.dylib")
-	library.dynam("libboost_system",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_system.dylib")
-	library.dynam("boost_program_options",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_program_options.dylib")
+	##library.dynam("boost_filesystem",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_filesystem.dylib")
+	##library.dynam("libboost_system",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_system.dylib")
+	##library.dynam("boost_program_options",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_program_options.dylib")
 	packageStartupMessage("Welcome to StochLib",
                           utils::packageDescription("StochLib", field="Version"),
                           appendLF = TRUE)

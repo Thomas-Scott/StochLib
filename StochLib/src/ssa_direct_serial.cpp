@@ -13,7 +13,7 @@
 #include "StochLib.h"
 using namespace StochLib;
 
-void StochLib::ssa_direct_serial(int ac, char* av[])
+void StochLib::ssa_direct_serial(std::string str)
 {
 
   typedef SSA_Direct<StandardDriverTypes::populationType,
@@ -21,7 +21,7 @@ void StochLib::ssa_direct_serial(int ac, char* av[])
     StandardDriverTypes::propensitiesType,
     StandardDriverTypes::graphType> solverType;
 
-  SerialIntervalSimulationDriver<solverType> driver(ac,av);
+  SerialIntervalSimulationDriver<solverType> driver(str);
 
   solverType solver=driver.createMassActionSolver();
   

@@ -36,8 +36,8 @@ public:
   typedef typename _solverType::dependencyGraphType dependencyGraphType;
   typedef StandardDriverTypes::outputType outputType;  
 
-  SerialIntervalSimulationDriver(int ac, char* av[]):
-    commandLine(ac,av),
+  SerialIntervalSimulationDriver(std::string str):
+    commandLine(str),
     output()
   {}
 

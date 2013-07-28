@@ -3,4 +3,4 @@ LIBXMLINC_PATH=/usr/include/libxml2
 LIBXMLLIB_PATH=/usr/include/libxml2
 
 PKG_CXXFLAGS = -I. -fopenmp $(SHLIB_OPENMP_CXXFLAGS) -I$(LIBXMLINC_PATH) 
-PKG_LIBS = @RCPP_PKG_LIBS@ -fopenmp $(SHLIB_OPENMP_CXXFLAGS) -L$(LIBXMLLIB_PATH) -lxml2 -lm
+PKG_LIBS = @RCPP_PKG_LIBS@ -fopenmp $(SHLIB_OPENMP_CXXFLAGS) -L$(LIBXMLLIB_PATH) -lxml2 -lm -lboostsystem

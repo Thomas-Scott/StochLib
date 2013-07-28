@@ -1,84 +1,10 @@
-/******************************************************************************
-*/
+/*
+ *	Boost Replacement functions
+ */
+
 #include "CommandLineInterface.h"
 
-namespace StochLib
-{
-	CommandLineInterface::CommandLineInterface(int ac, char* av[]):
-visible("command line options")
-{
-	std::string temp_dir;
-	visible.add_options()
-		("model,m", boost::program_options::value<std::string>(&modelFileName),"**REQUIRED Model file name")
-		("time,t",boost::program_options::value<double>(&simulationTime),"**REQUIRED Simulation time (i.e. run each realization from t=0 to t=time)")
-		("realizations,r",boost::program_options::value<std::size_t>(&realizations),"**REQUIRED Number of realizations")
-		("intervals,i",boost::program_options::value<std::size_t>(&intervals)->default_value(0),"Number of intervals.\n0=keep data only at simulation end time.\n1=keep data at start and end time.\n2=keep data at start, middle, and end times.\netc.\nNote data is stored at (intervals+1) time points.")
-		("no-stats","Do not keep statistics data (must use --keep-trajectories or --keep-histograms)")
-		("keep-trajectories","Keep trajectory data")
-		("keep-histograms","Keep histogram data")
-		("bins",boost::program_options::value<std::size_t>(&histogramBins)->default_value(32),"Number of bins in each histogram (applicable only with --keep-histograms)")
-		("species",boost::program_options::value<std::vector<std::string> >()->multitoken(),"List of subset of species (names or indices) to include in output.  If not specified, all species are included in output.")
-		("label","Label columns with species names")
-		("out-dir",boost::program_options::value<std::string>(&temp_dir),"Specify the output directory (default is <model name>_output.")
-		("force,f","Overwrite existing output directory and output files without confirmation.")
-		("no-recompile","Use previously compiled model code. Applicable only to models with customized propensity functions.  See documentation for details.")
-		("seed",boost::program_options::value<int>(&seed),"Seed the random number generator")
-		("processes,p",boost::program_options::value<std::size_t>(&processes)->default_value(0),"Override default and specify the number of processes to use. By default (=0), the number of processes will be determined automatically.")
-		("epsilon",boost::program_options::value<double>(&epsilon)->default_value(0.03),"Set the tolerance (applicable to tau leaping only), default is 0.03. Valid values: must be greater than 0.0 and less than 1.0.")
-		("threshold",boost::program_options::value<std::size_t>(&threshold)->default_value(10),"Set the threshold (minimum number of reactions per leap before switching to ssa) for tau leaping.")
-		("help,h","Use -h or --help to list all arguments")
-		;
-	hidden.add_options()
-		("use-existing-output-dirs","[hidden] used by parallel driver to tell a sub-process that the output directories already exist")
-		("stats-dir",boost::program_options::value<std::string>(&statsDir)->default_value("stats"),"[hidden]")
-		("means-file",boost::program_options::value<std::string>(&meansFileName)->default_value("means.txt"),"[hidden]")
-		("variances-file",boost::program_options::value<std::string>(&variancesFileName)->default_value("variances.txt"),"[hidden]")
-		("stats-info-file",boost::program_options::value<std::string>(&statsInfoFileName)->default_value(".stats-info.txt"),"[hidden]")
-		("trajectories-dir",boost::program_options::value<std::string>(&trajectoriesDir)->default_value("trajectories"),"[hidden]")
-		("trajectories-offset",boost::program_options::value<std::size_t>(&trajectoriesOffset)->default_value(0),"[hidden]")
-		("histograms-dir",boost::program_options::value<std::string>(&histogramsDir)->default_value("histograms"),"[hidden]")
-		("histograms-info-file",boost::program_options::value<std::string>(&histogramsInfoFileName)->default_value(""),"[hidden]")//only write an info file if this is non-empty (nonempty only in parallel simulation)
-		("ssa-steps",boost::program_options::value<std::size_t>(&SSASteps)->default_value(100),"[hidden] Number of SSA steps to take before trying another tau leap step (applicable to tau leaping only).")
-		;
-
-	combined.add(visible).add(hidden);
-
-	parse(ac, av);
-
-	//save command-line arguments
-	//skip the first (av[0] is the executable name)
-	*av++;
-	ac--;
-	//pull off the arguments
-	while (ac--) {
-		cmdArgs+=" "+(std::string)*av++;
-	}
-
-#ifdef WIN32
-	//find the model file path and add quote for window version
-	//for "-m"
-	std::string serchingString="-m "+modelFileName;
-	std::string replaceString="-m "+(std::string)"\""+modelFileName+(std::string)"\"";
-	int index=cmdArgs.find(serchingString, 0);
-	if(index!=std::string::npos)
-		cmdArgs.replace(index, serchingString.size(), replaceString); 
-	//for "--model"
-	serchingString="--model "+modelFileName;
-	replaceString="-m "+(std::string)"\""+modelFileName+(std::string)"\"";
-	index=cmdArgs.find(serchingString, 0);
-	if(index!=std::string::npos)
-		cmdArgs.replace(index, serchingString.size(), replaceString);
-	//for "--out-dir"
-	serchingString="--out-dir "+temp_dir;
-	replaceString="--out-dir "+(std::string)"\""+temp_dir+(std::string)"\"";
-	index=cmdArgs.find(serchingString, 0);
-	if(index!=std::string::npos)
-		cmdArgs.replace(index, serchingString.size(), replaceString); 
-#endif
-}
-
-
-
+ namespace StochLib{ 
 std::string CommandLineInterface::getGeneratedCodeDir() const {
 	return generatedCodeDir;
 }
@@ -205,167 +131,274 @@ std::string CommandLineInterface::getCmdArgs() const {
 	return cmdArgs;
 }
 
-void CommandLineInterface::parse(int ac, char* av[]) {
-	/*
 
-	if(cmdOptionExists(argv, argv+argc, "-h")){
-
+char* CommandLineInterface::getCmdOption(char ** begin, char ** end, const std::string & option){
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end){
+        return *itr;
     }
+    return 0;
+}
 
-    char * filename = getCmdOption(argv, argv + argc, "-f");
+bool CommandLineInterface::cmdOptionExists(char** begin, char** end, const std::string& option){
+	return std::find(begin, end, option) != end;
+}
 
-    if (filename){
+std::vector<std::string> CommandLineInterface::getCmdOptionList(char ** begin, char ** end, const std::string & option){
+    char ** itr = std::find(begin, end, option);
+    std::string tmp;
+    std::vector<std::string> list;
+    bool last=false;
+    while(!last && itr != end){
+             if (itr != end && ++itr != end){
+                    tmp = *itr;
 
+                    if (tmp[0] == '-') {
+                            last=true;
+                    } else {
+                            list.push_back(tmp);
+                    }
+            }
     }
+    return list;
+}
 
-	*/
-	try {
-		boost::program_options::store(boost::program_options::parse_command_line(ac,av,combined), vm);
-	}
-	catch (...) {
-		std::cout << "StochKit ERROR (CommandLineInterface::parse): unable to parse command-line arguments.  Run with --help for a list of required and optional parameters.\n";
-		exit(1);
-	}
+std::vector<std::string> CommandLineInterface::splitString( const std::string& str){
+	std::string buf; 
+    std::stringstream ss(str); 
+    std::vector<std::string> tokens;
+    while (ss >> buf)
+        tokens.push_back(buf);
+        return tokens;
+}
 
-	boost::program_options::notify(vm);
+char ** CommandLineInterface::parseString(std::string str,int &ac){
+    	std::vector<std::string> vec =splitString(str);
+    	ac = vec.size();
+    	char ** arr = new char*[ac];
+		for(size_t i = 0; i < ac; i++){
+	    	arr[i] = new char[vec[i].size() + 1];
+	    	strcpy(arr[i], vec[i].c_str());
+		}
+	return arr;
+}
 
-	if (vm.count("help")) {
-		std::cout << visible;
-		exit(0);
-	}
 
-	if (!(vm.count("model") && vm.count("time") && vm.count("realizations"))) {
-		std::cout << "StochKit ERROR (CommandLineInterface::parse): missing required parameter(s).  Run with --help for a list of required and optional parameters.\n";
-		exit(1);
-	}
+    void CommandLineInterface::parse_command_line(int ac, char* av[]){
 
-	if (realizations==0) {
-		std::cout << "StochKit ERROR (CommandLineInterface::parse): number of realizations = 0. Exiting.\n";
-		exit(1);
-	}
 
-	if (vm.count("seed")) {
-		useSeed=true;
-	}
-	else {
-		useSeed=false;
-	}
+    	if(cmdOptionExists(av, av+ac, "-m")){
+    		char * modelName = getCmdOption(av,av+ac,"-m");
+    		std::string name(modelName);
+    		modelFileName=name;
+	    } else if (cmdOptionExists(av,av+ac,"--model")){
+	    	char * modelName = getCmdOption(av,av+ac,"--model");
+	    	std::string name(modelName);
+	    	modelFileName=name;
+	    }
 
-	keepTrajectories=false;//default
-	if (vm.count("keep-trajectories")) {
-		keepTrajectories=true;
-	}
+	    if(cmdOptionExists(av, av+ac, "-t")){
+    		char * time = getCmdOption(av,av+ac,"-t");
+    		double t = atof(time);
+    		simulationTime=t;
+	    } else if (cmdOptionExists(av,av+ac,"--time")){
+	    	char * time = getCmdOption(av,av+ac,"--time");
+	    	double t = atof(time);
+	    	simulationTime=t;
+	    }
 
-	keepHistograms=false;//default
-	if (vm.count("keep-histograms")) {
-		keepHistograms=true;
-	}
+	    if(cmdOptionExists(av, av+ac, "-r")){
+    		char * r = getCmdOption(av,av+ac,"-r");
+    		std::istringstream iss(r);
+    		iss >>realizations;
+	    } else if (cmdOptionExists(av,av+ac,"--realizations")){
+	    	char * r = getCmdOption(av,av+ac,"--realizations");
+	    	std::istringstream iss(r);
+    		iss >>realizations;
+	    }
 
-	keepStats=true;//default; if set to false, must keep trajectories or histograms (otherwise you would be storing nothing)
-	if (vm.count("no-stats")) {
-		if (!keepTrajectories && !keepHistograms) {
-			std::cout << "StochKit ERROR (CommandLineInterface::parse): must keep statistics, trajectory or histogram data.\n." << std::endl;
+	    if(cmdOptionExists(av, av+ac, "-i")){
+    		char * tmp = getCmdOption(av,av+ac,"-i");
+    		std::istringstream iss(tmp);
+    		iss >>intervals;
+	    } else if (cmdOptionExists(av,av+ac,"--intervals")){
+	    	char * tmp = getCmdOption(av,av+ac,"--intervals");
+	    	std::istringstream iss(tmp);
+    		iss >>intervals;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "-f") || cmdOptionExists(av,av+ac,"--force")){
+	    	force = true;
+	    } else {
+	    	force = false;
+	    }
+
+	 	if(cmdOptionExists(av, av+ac, "-p")){
+    		char * tmp = getCmdOption(av,av+ac,"-p");
+    		std::istringstream iss(tmp);
+    		iss >>processes;
+	    } else if (cmdOptionExists(av,av+ac,"--processes")){
+	    	char * tmp = getCmdOption(av,av+ac,"--processes");
+	    	std::istringstream iss(tmp);
+    		iss >>processes;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--seed")){
+    		useSeed = true;
+	    } else {
+	    	useSeed = false;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--keep-trajectories")){
+    		keepTrajectories = true;
+	    } else {
+	    	keepTrajectories = false;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--keep-histograms")){
+    		keepHistograms = true;
+	    } else {
+	    	keepHistograms = false;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--label")){
+    		label = true;
+	    } else {
+	    	label = false;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--no-stats")){
+    		keepStats = false;
+	    } else {
+	    	keepStats = true;
+	    }
+
+	    if (epsilon<=0.0 || epsilon>=1.0) {
+			std::cout << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.  Run with --help for more info.\n";
 			exit(1);
 		}
 
-		keepStats=false;
-	}
+		if(cmdOptionExists(av, av+ac, "--species")){
+			species = getCmdOptionList(av,av+ac,"--species");
+	    }
 
-	if (epsilon<=0.0 || epsilon>=1.0) {
-		std::cout << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.  Run with --help for more info.\n";
-		exit(1);  
-	}/
 
-	if (vm.count("species")) {
-		species=vm["species"].as<std::vector<std::string> >();
-	}
+	    //TODO: fix out-dir function
+	    /*
 
-	if (vm.count("label")) {
-		label=true;
-	}
-	else {
-		label=false;
-	}
 
-	if (vm.count("force")) {
-		force=true;
-	}
-	else {
-		force=false;
-	}
-
-	if (vm.count("out-dir")) {
-		//create full path to output directory
+	    if (vm.count("out-dir")) {
+			//create full path to output directory
 		outputDir=boost::filesystem::system_complete(boost::filesystem::path(vm["out-dir"].as<std::string>())).string();
-	}
-	else {
-		//create full path to output directory, default location, <full_path_to/model_filename (without extension)>_output
+		}
+		else {
+			//create full path to output directory, default location, <full_path_to/model_filename (without extension)>_output
 		std::string tmp_full_model_path=boost::filesystem::system_complete(modelFileName).string();
 		outputDir=tmp_full_model_path.substr(0,tmp_full_model_path.find_last_of("."))+"_output";
-	}
+		}
 
-	if (vm.count("no-recompile")) {
-		recompile=false;
-	}
-	else {
-		recompile=true;
-	}
+	    */
+	    if(cmdOptionExists(av,av+ac,"--out-dir")){
+	    	char * output = getCmdOption(av,av+ac,"--out-dir");
+    		std::string out(output);
+    		outputDir = out;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--no-recompile")){
+    		recompile = false;
+	    } else {
+	    	recompile = true;
+	    }
+
+	    /* TODO: port this for future mixed, events, and other support
 
 	std::string full_model_path=boost::filesystem::system_complete(modelFileName).string();
 	generatedCodeDir=full_model_path.substr(0,full_model_path.find_last_of("."))+"_generated_code";
 	
-	if (vm.count("use-existing-output-dirs")) {
-		useExistingOutputDirs=true;
-	}
-	else {
-		useExistingOutputDirs=false;
-	}
+		*/
 
 
-	//if user only wants a subset of species or wants species labels
-	//we have to read in the model file to get species names (and species subset, if needed), so do that now...
-	char* modelFile;
-	modelFile=const_cast<char*>(modelFileName.c_str());
-	Input_tag<ModelTag> input_model_tag(modelFile);
-	ModelTag model_tag = input_model_tag.writeModelTag();
-	std::vector<std::string> modelSpeciesList=model_tag.SpeciesList;
+		if(cmdOptionExists(av, av+ac, "--use-existing-output-dirs")){
+    		useExistingOutputDirs = false;
+	    } else {
+	    	useExistingOutputDirs = true;
+	    }	    
+	    char* modelFile;
+		modelFile=const_cast<char*>(modelFileName.c_str());
+		Input_tag<ModelTag> input_model_tag(modelFile);
+		ModelTag model_tag = input_model_tag.writeModelTag();
+		std::vector<std::string> modelSpeciesList=model_tag.SpeciesList;
 
-	if (species.size()!=0) {//we need to create a species subset vector and set it in output object
-		//loop over command line species list
-		//if it's an index (a number), store it in the list of species indexes
-		//if it's a species id (species name), look up it's index in the modelSpeciesList
-		for (std::size_t i=0; i!=species.size(); ++i) {
-			std::istringstream iss(species[i]);
-			std::size_t index;
-			iss >> index;
-			if (iss.fail()) {
-				for (std::size_t j=0; j!=modelSpeciesList.size(); ++j) {
-					if (species[i].compare(modelSpeciesList[j])==0) {
-						speciesSubset.push_back(j);
-						break;
+		if (species.size()!=0) {//we need to create a species subset vector and set it in output object
+			//loop over command line species list
+			//if it's an index (a number), store it in the list of species indexes
+			//if it's a species id (species name), look up it's index in the modelSpeciesList
+			for (std::size_t i=0; i!=species.size(); ++i) {
+				std::istringstream iss(species[i]);
+				std::size_t index;
+				iss >> index;
+				if (iss.fail()) {
+					for (std::size_t j=0; j!=modelSpeciesList.size(); ++j) {
+						if (species[i].compare(modelSpeciesList[j])==0) {
+							speciesSubset.push_back(j);
+							break;
+						}
+					}
+				}
+				else {
+					if (index<modelSpeciesList.size()) {
+						speciesSubset.push_back(index);
+					}
+					else {
+						std::cout << "StochKit ERROR (CommandLineInterface::parse): species index \""<<index<<"\" larger than number of species (Note: indices start at 0, so largest index is "<<modelSpeciesList.size()-1<<")\n";
+						exit(1);
 					}
 				}
 			}
-			else {
-				if (index<modelSpeciesList.size()) {
-					speciesSubset.push_back(index);
-				}
-				else {
-					std::cout << "StochKit ERROR (CommandLineInterface::parse): species index \""<<index<<"\" larger than number of species (Note: indices start at 0, so largest index is "<<modelSpeciesList.size()-1<<")\n";
-					exit(1);
-				}
-			}
+
+		}
+		//create vector of species names
+		if (speciesSubset.size()==0) {//if keeping all species, use species label vector from model_tag
+			speciesNames=modelSpeciesList;
+		}
+		else {//we're using a species subset, so we need to create the appropriate species label subset
+			DenseVectorSubset<std::vector<std::string> > labelSubset(speciesSubset);
+			speciesNames=labelSubset.getSubset(modelSpeciesList);
 		}
 
-	}
-	//create vector of species names
-	if (speciesSubset.size()==0) {//if keeping all species, use species label vector from model_tag
-		speciesNames=modelSpeciesList;
-	}
-	else {//we're using a species subset, so we need to create the appropriate species label subset
-		DenseVectorSubset<std::vector<std::string> > labelSubset(speciesSubset);
-		speciesNames=labelSubset.getSubset(modelSpeciesList);
-	}
-}//end parse
+		#ifdef WIN32
+			//find the model file path and add quote for window version
+			//for "-m"
+			std::string serchingString="-m "+modelFileName;
+			std::string replaceString="-m "+(std::string)"\""+modelFileName+(std::string)"\"";
+			int index=cmdArgs.find(serchingString, 0);
+			if(index!=std::string::npos)
+				cmdArgs.replace(index, serchingString.size(), replaceString); 
+			//for "--model"
+			serchingString="--model "+modelFileName;
+			replaceString="-m "+(std::string)"\""+modelFileName+(std::string)"\"";
+			index=cmdArgs.find(serchingString, 0);
+			if(index!=std::string::npos)
+				cmdArgs.replace(index, serchingString.size(), replaceString);
+			//for "--out-dir"
+			serchingString="--out-dir "+temp_dir;
+			replaceString="--out-dir "+(std::string)"\""+temp_dir+(std::string)"\"";
+			index=cmdArgs.find(serchingString, 0);
+			if(index!=std::string::npos)
+				cmdArgs.replace(index, serchingString.size(), replaceString); 
+		#endif
 
+    }
+
+
+
+	CommandLineInterface::CommandLineInterface(std::string str){
+		int ac;
+		char ** command = parseString(str,ac);
+		parse_command_line(ac,command);
+		
+
+	}
 }
+
+  
