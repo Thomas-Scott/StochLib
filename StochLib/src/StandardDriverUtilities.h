@@ -10,7 +10,6 @@
 #include <vector>
 #include <string.h>
 #include <sstream>
-#include "boost/filesystem.hpp"
 #include "CommandLineInterface.h"
 #ifdef EVENTS
 #include "Input_events_before_compile.h"

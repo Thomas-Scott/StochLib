@@ -7,6 +7,6 @@ Author: Who wrote it
 Maintainer: Thomas Scott <scottt@stolaf.edu>
 Description: More about what it does (maybe more than one line)
 License: What Licence is it under ?
-Depends: methods, Rcpp (>= 0.10.3), BH
-LinkingTo: Rcpp, BH
+Depends: methods, Rcpp (>= 0.10.3)
+LinkingTo: Rcpp
 RcppModules: StochLib

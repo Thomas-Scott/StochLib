@@ -11,23 +11,22 @@
 ## a load action, so this does not have to be placed in .onLoad() or evalqOnLoad().
 
 
-# Borrowed code from the Cairo zzz.R script
-.First.lib <- function(libname, pkgname) {
-    ## add our libs to the PATH
-    if (.Platform$OS.type=="windows") {
-        .setenv <- if (exists("Sys.setenv")) Sys.setenv else Sys.putenv
-        lp<-gsub("/","\\\\",paste(libname,pkgname,"libs",sep="/"))
-        cp<-strsplit(Sys.getenv("PATH"),";")
-        if (! lp %in% cp) .setenv(PATH=paste(lp,Sys.getenv("PATH"),sep=";"))
-    }
-    library.dynam("StochLib", pkgname, libname)
-    ##loadModule("StochLib",TRUE)
-	##library.dynam("boost_filesystem",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_filesystem.dylib")
-	##library.dynam("libboost_system",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_system.dylib")
-	##library.dynam("boost_program_options",pkgname,lib.loc="/usr/local/lib/boost_1_53_0/stage/lib/libboost_program_options.dylib")
-	packageStartupMessage("Welcome to StochLib",
-                          utils::packageDescription("StochLib", field="Version"),
-                          appendLF = TRUE)
-}
+# # Borrowed code from the Cairo zzz.R script
+# .First.lib <- function(libname, pkgname) {
+#     ## add our libs to the PATH
+#     if (.Platform$OS.type=="windows") {
+#         .setenv <- if (exists("Sys.setenv")) Sys.setenv else Sys.putenv
+#         lp<-gsub("/","\\\\",paste(libname,pkgname,"libs",sep="/"))
+#         cp<-strsplit(Sys.getenv("PATH"),";")
+#         if (! lp %in% cp) .setenv(PATH=paste(lp,Sys.getenv("PATH"),sep=";"))
+#     }
+#     library.dynam("StochLib", pkgname, libname)
+#     loadModule("StochLib",TRUE)
+# 	packageStartupMessage("Welcome to StochLib",
+#                           utils::packageDescription("StochLib", field="Version"),
+#                           appendLF = TRUE)
+# }
 
-.onLoad <- .First.lib
+# .onLoad <- .First.lib
+
+loadModule("StochLib",TRUE)

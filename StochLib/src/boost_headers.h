@@ -2,7 +2,6 @@
 #define __BOOST_HEADERS__
 
 #include <boost/bind.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/foreach.hpp>
