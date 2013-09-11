@@ -391,11 +391,44 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 
 	    if(cmdOptionExists(av,av+ac,"--stats-info-file")){
 	    	char * s = getCmdOption(av,av+ac,"--stats-info-file");
-    		std::string vars(s);
-    		statsInfoFileName = s;
+    		std::string str(s);
+    		statsInfoFileName = str;
 	    } else {
 	    	statsInfoFileName = ".stats-info.txt";
 	    }
+
+	    if(cmdOptionExists(av,av+ac,"--trajectories-dir")){
+	    	char * s = getCmdOption(av,av+ac,"--trajectories-dir");
+    		std::string str(s);
+    		trajectoriesDir = str;
+	    } else {
+	    	trajectoriesDir = "trajectories";
+	    }
+
+	    if(cmdOptionExists(av,av+ac,"--trajectories-offset")){
+	    	char * s = getCmdOption(av,av+ac,"--trajectories-offset");
+    		double offset = atof(s);
+    		trajectoriesOffset = offset;
+	    } else {
+	    	trajectoriesOffset = 0;
+	    }
+
+	    if(cmdOptionExists(av,av+ac,"--histograms-dir")){
+	    	char * s = getCmdOption(av,av+ac,"--histograms-dir");
+    		std::string str(s);
+    		histogramsDir = str;
+	    } else {
+	    	histogramsDir = "histograms";
+	    }
+
+	    if(cmdOptionExists(av,av+ac,"--histograms-info-file")){
+	    	char * s = getCmdOption(av,av+ac,"--histograms-info-file");
+    		std::string str(s);
+    		histogramsInfoFileName = str;
+	    } else {
+	    	histogramsInfoFileName = "";
+	    }
+
 
 
 	    if(cmdOptionExists(av, av+ac, "--no-recompile")){
