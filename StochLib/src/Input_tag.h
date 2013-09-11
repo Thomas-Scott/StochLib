@@ -7,7 +7,7 @@
 #ifndef _INPUT_TAG_H_
 #define _INPUT_TAG_H_
 
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <sstream>
 #include <algorithm>
 #include <stdio.h>

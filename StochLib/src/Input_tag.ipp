@@ -24,19 +24,19 @@ parseXmlFile(char *xmlFilename)
 	int flag = 00; // flag indicating if anything missing or redundant in xml file
 		
 	if (stochkitXml == NULL) {
-		std::cerr << "StochKit ERROR (Input_tag::parseXmlFile): Empty or not well-formed xml input file\n";
+		CERR << "StochKit ERROR (Input_tag::parseXmlFile): Empty or not well-formed xml input file\n";
 		return false;
 	}
 
 	root = xmlDocGetRootElement(stochkitXml);
 	if (root == NULL) {
-		std::cerr << "StochKit ERROR (Input_tag::parseXmlFile): Empty Document\n";
+		CERR << "StochKit ERROR (Input_tag::parseXmlFile): Empty Document\n";
 		xmlFreeDoc(stochkitXml);
 		return false;
 	}
 
 	if (xmlStrcasecmp(root->name, (const xmlChar *) "Model")) {
-		std::cerr << "StochKit ERROR (Input_tag::parseXmlFile): Document of the wrong type, root node != Model\n";
+		CERR << "StochKit ERROR (Input_tag::parseXmlFile): Document of the wrong type, root node != Model\n";
 		xmlFreeDoc(stochkitXml);
 		return false;
 	}
@@ -80,7 +80,7 @@ parseXmlFile(char *xmlFilename)
 			}
 			flag += 010000;
 		} else if ((xmlStrcasecmp(cur->name, (const xmlChar *)"Description"))){
-                        std::cerr << "StochKit ERROR (Input_tag::parseXmlFile): Unknown tag \"" << cur->name << "\" in \"Model\"." << std::endl;
+                        CERR << "StochKit ERROR (Input_tag::parseXmlFile): Unknown tag \"" << cur->name << "\" in \"Model\"." << std::endl;
                         return false;
 		}
 	    }
@@ -88,7 +88,7 @@ parseXmlFile(char *xmlFilename)
 	}
 		
 	if ( flag != 01111 && flag != 011111 ){
-		std::cerr << "StochKit ERROR (Input_tag::parseXmlFile): Document error: necessary part missing or redundant\n";
+		CERR << "StochKit ERROR (Input_tag::parseXmlFile): Document error: necessary part missing or redundant\n";
 		xmlFreeDoc(stochkitXml);
 		return false;
 	}
@@ -108,13 +108,13 @@ recordNumberOfReactions(xmlNodePtr cur)
 	xmlChar *content;
 	content = xmlNodeGetContent(cur);
 	if(content == NULL){
-		std::cerr << "StochKit ERROR (Input_tag::recordNumberOfReactions): missing NumberOfReactions \n";
+		CERR << "StochKit ERROR (Input_tag::recordNumberOfReactions): missing NumberOfReactions \n";
 		return false;
 	}
 	NumberOfReactions = atoi((const char *)content);
 	xmlFree(content);
 	if(NumberOfReactions <= 0){
-		std::cerr << "StochKit ERROR (Input_tag::recordNumberOfReactions): NumberOfReactions <= 0 \n";
+		CERR << "StochKit ERROR (Input_tag::recordNumberOfReactions): NumberOfReactions <= 0 \n";
 		return false;
 	}
 	return true;
@@ -128,13 +128,13 @@ recordNumberOfSpecies(xmlNodePtr cur)
 	xmlChar *content;
 	content = xmlNodeGetContent(cur);
 	if(content == NULL){
-		std::cerr << "StochKit ERROR (Input_tag::recordNumberOfSpecies): missing NumberOfSpecies \n";
+		CERR << "StochKit ERROR (Input_tag::recordNumberOfSpecies): missing NumberOfSpecies \n";
 		return false;
 	}
 	NumberOfSpecies = atoi((const char *)content);
 	xmlFree(content);
 	if(NumberOfSpecies <= 0){
-		std::cerr << "StochKit ERROR (Input_tag::recordNumberOfSpecies): NumberOfSpecies <= 0 \n";
+		CERR << "StochKit ERROR (Input_tag::recordNumberOfSpecies): NumberOfSpecies <= 0 \n";
 		return false;
 	}
 	return true;
@@ -159,7 +159,7 @@ recordParametersList(xmlNodePtr cur)
 				if ((!xmlStrcasecmp(cur_in_para->name, (const xmlChar *)"Id"))){
 					content = xmlNodeGetContent(cur_in_para);
 					if(content == NULL){
-						std::cerr << "StochKit ERROR (Input_tag::recordParametersList): missing parameter Id \n";
+						CERR << "StochKit ERROR (Input_tag::recordParametersList): missing parameter Id \n";
 						return false;
 					}
 					ParametersList.push_back(std::string((const char *)content));
@@ -168,7 +168,7 @@ recordParametersList(xmlNodePtr cur)
 				cur_in_para = cur_in_para->next;
 			}
                 } else {
-                        std::cerr << "StochKit ERROR (Input_tag::recordParametersList): Unknown tag \"" << cur_para->name << "\" in \"ParametersList\"." << std::endl;
+                        CERR << "StochKit ERROR (Input_tag::recordParametersList): Unknown tag \"" << cur_para->name << "\" in \"ParametersList\"." << std::endl;
                         return false;
                 }
 	    }
@@ -176,7 +176,7 @@ recordParametersList(xmlNodePtr cur)
 	}
 
 	if( (int)ParametersList.size() != NumberOfParameters){
-		std::cerr << "StochKit ERROR (Input_tag::recordParametersList): missing parameter Id \n";
+		CERR << "StochKit ERROR (Input_tag::recordParametersList): missing parameter Id \n";
 		return false;
 	}
 
@@ -201,7 +201,7 @@ recordReactionsList(xmlNodePtr cur)
 				if ((!xmlStrcasecmp(cur_in_reac->name, (const xmlChar *)"Id"))){
 					content = xmlNodeGetContent(cur_in_reac);
 					if(content == NULL){
-						std::cerr << "StochKit ERROR (Input_tag::recordReactionsList): missing Reaction Id \n";
+						CERR << "StochKit ERROR (Input_tag::recordReactionsList): missing Reaction Id \n";
 						return false;
 					}
 					ReactionsList.push_back(std::string((const char *)content));
@@ -209,11 +209,11 @@ recordReactionsList(xmlNodePtr cur)
 				} else if ((!xmlStrcasecmp(cur_in_reac->name, (const xmlChar *)"Type"))){
 					content = xmlNodeGetContent(cur_in_reac);
 					if(content == NULL){
-						std::cerr << "StochKit ERROR (Input_tag::recordReactionsList): missing Reaction Type \n";
+						CERR << "StochKit ERROR (Input_tag::recordReactionsList): missing Reaction Type \n";
 						return false;
 					}
 					if(!xmlStrcasecmp(content, (const xmlChar *)"michaelis-menten")){
-						std::cerr << "StochKit ERROR (Input_tag::recordReactionsList): reaction type michaelis-menton not supported yet. Please treat with customized propensity." << std::endl;
+						CERR << "StochKit ERROR (Input_tag::recordReactionsList): reaction type michaelis-menton not supported yet. Please treat with customized propensity." << std::endl;
 						xmlFree(content);
 						return false;
 					}else if(!xmlStrcasecmp(content, (const xmlChar *)"customized")){
@@ -224,7 +224,7 @@ recordReactionsList(xmlNodePtr cur)
 				cur_in_reac = cur_in_reac->next;
 			}
                 } else {
-                        std::cerr << "StochKit ERROR (Input_tag::recordReactionsList): Unknown tag \"" << cur_reac->name << "\" in \"ReactionsList\"." << std::endl;
+                        CERR << "StochKit ERROR (Input_tag::recordReactionsList): Unknown tag \"" << cur_reac->name << "\" in \"ReactionsList\"." << std::endl;
                         return false;
                 }
 	    }
@@ -232,7 +232,7 @@ recordReactionsList(xmlNodePtr cur)
 	}
 
 	if( (int)ReactionsList.size() != NumberOfReactions ){
-		std::cerr << "StochKit ERROR (Input_tag::recordSpeciesList): the number of Reactions in ReactionsList != NumberOfReactions\n";
+		CERR << "StochKit ERROR (Input_tag::recordSpeciesList): the number of Reactions in ReactionsList != NumberOfReactions\n";
 		return false;
 	}
 
@@ -257,7 +257,7 @@ recordSpeciesList(xmlNodePtr cur)
 				if ((!xmlStrcasecmp(cur_in_spec->name, (const xmlChar *)"Id"))){
 					content = xmlNodeGetContent(cur_in_spec);
 					if(content == NULL){
-						std::cerr << "StochKit ERROR (Input_tag::recordSpeciesList): missing Species Id \n";
+						CERR << "StochKit ERROR (Input_tag::recordSpeciesList): missing Species Id \n";
 						return false;
 					}
 					SpeciesList.push_back(std::string((const char *)content));
@@ -266,7 +266,7 @@ recordSpeciesList(xmlNodePtr cur)
 				cur_in_spec = cur_in_spec->next;
 			}
                 } else {
-                        std::cerr << "StochKit ERROR (Input_tag::recordSpeciesList): Unknown tag \"" << cur_spec->name << "\" in \"SpeciesList\"." << std::endl;
+                        CERR << "StochKit ERROR (Input_tag::recordSpeciesList): Unknown tag \"" << cur_spec->name << "\" in \"SpeciesList\"." << std::endl;
                         return false;
                 }
 	    }
@@ -274,7 +274,7 @@ recordSpeciesList(xmlNodePtr cur)
 	}
 
 	if( (int)SpeciesList.size() != NumberOfSpecies ){
-		std::cerr << "StochKit ERROR (Input_tag::recordSpeciesList): the number of Species in SpeciesList != NumberOfSpecies\n";
+		CERR << "StochKit ERROR (Input_tag::recordSpeciesList): the number of Species in SpeciesList != NumberOfSpecies\n";
 		return false;
 	}
 
@@ -300,7 +300,7 @@ recordEventsList(xmlNodePtr cur)
 				if ((!xmlStrcasecmp(cur_in_event->name, (const xmlChar *)"Id"))){
 					content = xmlNodeGetContent(cur_in_event);
 					if(content == NULL){
-						std::cerr << "StochKit ERROR (Input_tag::recordEventsList): missing Event Id \n";
+						CERR << "StochKit ERROR (Input_tag::recordEventsList): missing Event Id \n";
 						return false;
 					}
 					EventsList.push_back(std::string((const char *)content));
@@ -309,7 +309,7 @@ recordEventsList(xmlNodePtr cur)
 				cur_in_event = cur_in_event->next;
 			}
                 } else {
-                        std::cerr << "StochKit ERROR (Input_tag::recordEventsList): Unknown tag \"" << cur_event->name << "\" in \"EventsList\"." << std::endl;
+                        CERR << "StochKit ERROR (Input_tag::recordEventsList): Unknown tag \"" << cur_event->name << "\" in \"EventsList\"." << std::endl;
                         return false;
                 }
 	    }
@@ -317,7 +317,7 @@ recordEventsList(xmlNodePtr cur)
 	}
 
 	if( (int)EventsList.size() != NumberOfEvents){
-		std::cerr << "StochKit ERROR (Input_tag::recordEventsList): missing event Id \n";
+		CERR << "StochKit ERROR (Input_tag::recordEventsList): missing event Id \n";
 		return false;
 	}
 

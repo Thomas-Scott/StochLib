@@ -10,7 +10,7 @@ bool ListOfParameters::calculateParameter(unsigned int Order)
 {
 #ifdef DEBUG
 	if( Order >= ParametersList.size() ){
-		std::cerr << "StochKit ERROR (Parameter::calculateParameter): calculate non-existing parameter" << std::endl;
+		CERR << "StochKit ERROR (Parameter::calculateParameter): calculate non-existing parameter" << std::endl;
 		return false;
 	}
 #endif
@@ -31,13 +31,13 @@ bool ListOfParameters::calculateParameter(unsigned int Order)
 
 		std::string parameterExpression = parameterSubstitution(ParametersList[Order].Expression);
 		if( parameterExpression.empty() ){
-			std::cerr << "StochKit ERROR (Parameter::calculateParameter): while calculating parameter " + ParametersList[Order].Id << std::endl;
+			CERR << "StochKit ERROR (Parameter::calculateParameter): while calculating parameter " + ParametersList[Order].Id << std::endl;
 			return false;
 		}
 
 		ParametersList[Order].Value = simpleCalculator.calculateString(parameterExpression);
 		if(ParametersList[Order].Value == BADRESULT){
-			std::cerr << "StochKit ERROR (Parameter::calculateParameter): while calculating parameter " + ParametersList[Order].Id << std::endl;
+			CERR << "StochKit ERROR (Parameter::calculateParameter): while calculating parameter " + ParametersList[Order].Id << std::endl;
 			return false;
 		}
 
@@ -45,7 +45,7 @@ bool ListOfParameters::calculateParameter(unsigned int Order)
 
 		return true;
 	} else { // CalculateFlag == 0
-		std::cerr << "StochKit ERROR (Parameter::calculateParameter): there is a loop in parameters link graph" << std::endl;
+		CERR << "StochKit ERROR (Parameter::calculateParameter): there is a loop in parameters link graph" << std::endl;
 		return false;
 	}
 }
@@ -90,7 +90,7 @@ std::string ListOfParameters::parameterSubstitution(std::string equation)
  				while( (j < knownFunctions.functions.size()) && (parameterName.compare(knownFunctions.functions[j].first)!=0) )
  					++j;
  				if( j == knownFunctions.functions.size() ){
- 					std::cerr << "StochKit ERROR (Parameter::parameterSubstitution): parameter " + parameterName + " not found in parameters list\n";
+ 					CERR << "StochKit ERROR (Parameter::parameterSubstitution): parameter " + parameterName + " not found in parameters list\n";
  					substitutedEquation.clear();
  					return substitutedEquation;
  				}
@@ -157,13 +157,13 @@ bool ListOfParameters::updateParameter(unsigned int Order, std::string Expressio
 	if( value_type == true ){
 		std::string parameterExpression = parameterSubstitution(Expression);
 		if( parameterExpression.empty() ){
-			std::cerr << "StochKit ERROR (Parameter::updateParameter): while updating parameter " + ParametersList[Order].Id << std::endl;
+			CERR << "StochKit ERROR (Parameter::updateParameter): while updating parameter " + ParametersList[Order].Id << std::endl;
 			return false;
 		}
 
 		ParametersList[Order].Value = simpleCalculator.calculateString(parameterExpression);
 		if(ParametersList[Order].Value == BADRESULT){
-			std::cerr << "StochKit ERROR (Parameter::updateParameter): while updating parameter " << ParametersList[Order].Id << std::endl;
+			CERR << "StochKit ERROR (Parameter::updateParameter): while updating parameter " << ParametersList[Order].Id << std::endl;
 			return false;
 		}
 
@@ -182,7 +182,7 @@ bool ListOfParameters::updateParameter(unsigned int Order, std::string Expressio
 
 	// calculate all parameters
 	if(!calculateParameters()){
-		std::cerr << "StochKit ERROR (Parameter::updateParameter): while updating parameter " << ParametersList[Order].Id << std::endl;
+		CERR << "StochKit ERROR (Parameter::updateParameter): while updating parameter " << ParametersList[Order].Id << std::endl;
 		return false;
 	}
 

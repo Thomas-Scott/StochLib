@@ -5,7 +5,7 @@
 #ifndef _STANDARD_DRIVER_OUTPUT_H_
 #define _STANDARD_DRIVER_OUTPUT_H_
 
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <vector>
 #include "IntervalOutput.h"
 #include "StatsOutput.h"
@@ -23,7 +23,7 @@ public:
 		outfile.open(filename.c_str());
 
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 
@@ -35,12 +35,12 @@ public:
 		//then serialize trajectories data if keepTrajectories
 		if (keepTrajectories) {
 //			outfile.close();
-//			std::cerr << "StochKit ERROR (StandardDriverOutput::serialize): Serialize of trajectory data not implemented yet in this beta version. Terminating.\n";
+//			CERR << "StochKit ERROR (StandardDriverOutput::serialize): Serialize of trajectory data not implemented yet in this beta version. Terminating.\n";
 //			exit(1);			
 			trajectories.serialize(outfile);
 //			outfile.open(filename.c_str(),std::ios::out | std::ios::app);
 			if (!outfile) {
-				std::cerr << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
+				CERR << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
 				exit(1);
 			}
 
@@ -52,7 +52,7 @@ public:
 		if (keepStats) {
 			stats.serialize(outfile);
 			if (!outfile) {
-				std::cerr << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
+				CERR << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
 				exit(1);
 			}
 		}
@@ -63,7 +63,7 @@ public:
 		if (keepHistograms) {
 			histograms.serialize(outfile);
 			if (!outfile) {
-				std::cerr << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
+				CERR << "StochKit ERROR (StandardDriverOutput::serialize): Unable to open output file. Terminating.\n";
 				exit(1);
 			}
 		}
@@ -75,45 +75,45 @@ public:
 		//open file for reading
 		std::ifstream fin(filename.c_str());
 		if (!fin) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
 			exit(1);
 		}
 		std::string inputString;
 		fin >> inputString;//first line of file should contain string "trajectories"...
-//		std::cout << "in unserialize, inputString is \""<<inputString<<"\"\n";
+//		COUT << "in unserialize, inputString is \""<<inputString<<"\"\n";
 		if (inputString.compare("trajectories")!=0) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Error reading trajectory heading data from file. Terminating.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Error reading trajectory heading data from file. Terminating.\n";
 			exit(1);		
 		}
 		bool inputBool;
 		fin >> inputBool;
-//		std::cout << "in unserialize, inputBool is "<<inputBool<<"\n";
+//		COUT << "in unserialize, inputBool is "<<inputBool<<"\n";
 		keepTrajectories=inputBool;
 		if (inputBool) {
 			trajectories.unserialize(fin);
 		}
 		
 		fin >> inputString;//next line of file should contain string "stats"...
-//		std::cout << "in unserialize, inputString is \""<<inputString<<"\"\n";
+//		COUT << "in unserialize, inputString is \""<<inputString<<"\"\n";
 		if (inputString.compare("stats")!=0) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Error reading stats heading data from file. Terminating.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Error reading stats heading data from file. Terminating.\n";
 			exit(1);		
 		}
 		fin >> inputBool;
-//		std::cout << "in unserialize, inputBool is "<<inputBool<<"\n";
+//		COUT << "in unserialize, inputBool is "<<inputBool<<"\n";
 		keepStats=inputBool;
 		if (inputBool) {
 			stats.unserialize(fin);
 		}
 
 		fin >> inputString;//next line of file should contain string "histograms"...
-//		std::cout << "in unserialize, inputString is \""<<inputString<<"\"\n";
+//		COUT << "in unserialize, inputString is \""<<inputString<<"\"\n";
 		if (inputString.compare("histograms")!=0) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Error reading histogram heading data from file. Terminating.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Error reading histogram heading data from file. Terminating.\n";
 			exit(1);		
 		}
 		fin >> inputBool;
-//		std::cout << "in unserialize, inputBool is "<<inputBool<<"\n";
+//		COUT << "in unserialize, inputBool is "<<inputBool<<"\n";
 		keepHistograms=inputBool;
 		if (inputBool) {
 			histograms.unserialize(fin);
@@ -179,7 +179,7 @@ public:
     }
     else {
       //should provide an error message
-      std::cout << "StochKit ERROR (StandardDriverOutput::initialize) initialization of output object failed" << std::endl;
+      COUT << "StochKit ERROR (StandardDriverOutput::initialize) initialization of output object failed" << std::endl;
       return false;
     }
   }
@@ -223,7 +223,7 @@ public:
       trajectories.writeDataToFile(realization,filename,printTime,append);
     }
     else {
-      std::cout << "WARNING (StandardDriverOutput::writeTrajectoryToFile): keepTrajectories=false, can't write trajectory data to file" << std::endl;
+      COUT << "WARNING (StandardDriverOutput::writeTrajectoryToFile): keepTrajectories=false, can't write trajectory data to file" << std::endl;
     }
   }
 

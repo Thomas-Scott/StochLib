@@ -1,7 +1,7 @@
 #if !defined(__CustomPropensitySet_Events_h__)
 #define __CustomPropensitySet_Events_h__
 
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <vector>
 
 #include "Parameter.h"
@@ -35,11 +35,11 @@ namespace StochLib
 	{
 		ParametersList = initialParametersList;
 #ifdef DEBUG
-		std::cout << "CustomPropensitySet_Events:\n";
+		COUT << "CustomPropensitySet_Events:\n";
 		for( std::size_t i = 0; i < ParametersList.size(); ++i){      
-			std::cout << ParametersList[i].Value << " ";
+			COUT << ParametersList[i].Value << " ";
 		}
-		std::cout << std::endl;
+		COUT << std::endl;
 #endif
 	}
 

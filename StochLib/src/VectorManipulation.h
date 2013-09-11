@@ -5,6 +5,8 @@
 #ifndef _VECTOR_MANIPULATION_H_
 #define _VECTOR_MANIPULATION_H_
 
+#include "StdOutputHandler.h"
+
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -96,7 +98,7 @@ bool delFromSortedArray(_vectorType &sortedArray, _elementType delElement)
 		}
 	}
 
-	std::cerr << "StochKit ERROR (Vector_Manipulation::delFromSortedArray): delete non-existing element from sorted array" << std::endl;
+	CERR << "StochKit ERROR (Vector_Manipulation::delFromSortedArray): delete non-existing element from sorted array" << std::endl;
 	return false;
 }
 

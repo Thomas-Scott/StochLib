@@ -5,7 +5,7 @@
 #ifndef STOCHKIT_RANDOM_H
 #define STOCHKIT_RANDOM_H
 
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <vector>
 #include <limits>
 #include <ctime>

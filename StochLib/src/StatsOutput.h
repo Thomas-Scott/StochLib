@@ -5,7 +5,8 @@
 #ifndef _STATS_OUTPUT_H_
 #define _STATS_OUTPUT_H_
 
-#include <iostream>
+#include <StdOutputHandler.h>
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -29,7 +30,7 @@ public:
 		Base::serialize(outfile);
 
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (StatsOutput::serialize): Unable to open output file.\n";
+			CERR << "StochKit ERROR (StatsOutput::serialize): Unable to open output file.\n";
 			exit(1);
 		}
 
@@ -40,7 +41,7 @@ public:
 		Base::unserialize(fin);
 
 		if (!fin) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
 			exit(1);
 		}		
 		std::size_t inputSize_t;
@@ -116,7 +117,7 @@ public:
 
   void writeMeansToFile(std::string filename, bool printTime=true, bool append=false, bool highPrecision=false) {
     if (m_n==0) {
-      std::cout << "StochKit ERROR (StatsOutput::writeMeansToFile) can't write means to file when number of realizations = 0\n";
+      COUT << "StochKit ERROR (StatsOutput::writeMeansToFile) can't write means to file when number of realizations = 0\n";
     }
     else {
       Base::writeDataToFile(1,filename,printTime,append,highPrecision);
@@ -125,7 +126,7 @@ public:
 
   void writeVariancesToFile(std::string filename, bool printTime=true, bool append=false, bool highPrecision=false) {
     if (m_n==0) {
-      std::cout << "StochKit ERROR (StatsOutput::writeVariancesToFile) can't write variances to file when number of realizations = 0" << std::endl;
+      COUT << "StochKit ERROR (StatsOutput::writeVariancesToFile) can't write variances to file when number of realizations = 0" << std::endl;
     }
     else {
       std::ofstream outfile;
@@ -138,7 +139,7 @@ public:
       }
       
       if (!outfile) {
-	std::cerr << "StochKit ERROR (StatsOutput::writeVariancesToFile): Unable to open output file\n";
+	CERR << "StochKit ERROR (StatsOutput::writeVariancesToFile): Unable to open output file\n";
 	exit(1);
       }
       
@@ -172,7 +173,7 @@ public:
 	outfile.close();
       }
       catch (...) {
-	std::cout << "StochKit ERROR (StatsOutput::writeVariancesToFile): error writing data to output file.\n";
+	COUT << "StochKit ERROR (StatsOutput::writeVariancesToFile): error writing data to output file.\n";
 	exit(1);
       }
     }
@@ -180,7 +181,7 @@ public:
 
   void writeStandardDeviationsToFile(std::string filename, bool printTime=true, bool append=false) {
     if (m_n<=1) {
-      std::cout << "StochKit ERROR (StatsOutput::writeStandardDeviationsToFile) can't write standard deviations to file when m_n<=1" << std::endl;
+      COUT << "StochKit ERROR (StatsOutput::writeStandardDeviationsToFile) can't write standard deviations to file when m_n<=1" << std::endl;
     }
     else {
       std::ofstream outfile;
@@ -193,7 +194,7 @@ public:
       }
 
       if (!outfile) {
-	std::cerr << "StochKit ERROR (StatsOutput::writeStandardDeviationToFile): Unable to open output file.\n";
+	CERR << "StochKit ERROR (StatsOutput::writeStandardDeviationToFile): Unable to open output file.\n";
 	exit(1);
       }
 
@@ -211,7 +212,7 @@ public:
 	outfile.close();
       }
       catch (...) {
-	std::cout << "StochKit ERROR (StatsOutput::writeStandardDeviationToFile): error writing data to output file.\n";
+	COUT << "StochKit ERROR (StatsOutput::writeStandardDeviationToFile): error writing data to output file.\n";
 	exit(1);
       }
     }
@@ -264,7 +265,7 @@ public:
     //read in numberOfRealizations from info file
     std::ifstream fin(simulationInfoFileName.c_str());
     if (!fin) {
-      std::cerr << "StochKit ERROR (StatsOutput::createFromFiles): Unable to open simulation info file "<<simulationInfoFileName<<".\n";
+      CERR << "StochKit ERROR (StatsOutput::createFromFiles): Unable to open simulation info file "<<simulationInfoFileName<<".\n";
       exit(1);
     }
     std::size_t numberOfRealizations;
@@ -278,7 +279,7 @@ public:
   static StatsOutput createFromFiles(std::string meansFileName, std::string variancesFileName, std::size_t numberOfRealizations, std::size_t numberOfSpecies) {
     std::ifstream meansIn(meansFileName.c_str());
     if (!meansIn) {
-      std::cerr << "StochKit ERROR (StatsOutput::createFromFiles): Unable to open means file "<< meansFileName<<".\n";
+      CERR << "StochKit ERROR (StatsOutput::createFromFiles): Unable to open means file "<< meansFileName<<".\n";
       exit(1);
     }
     
@@ -320,7 +321,7 @@ public:
 
     std::ifstream variancesIn(variancesFileName.c_str());
     if (!variancesIn) {
-      std::cerr << "StochKit ERROR (StatsOutput::createFromFiles): Unable to open variances file "<< variancesFileName<<".\n";
+      CERR << "StochKit ERROR (StatsOutput::createFromFiles): Unable to open variances file "<< variancesFileName<<".\n";
       exit(1);
     }
         
@@ -355,7 +356,7 @@ public:
     std::ofstream outfile;
     outfile.open(infoFileName.c_str());
     if (!outfile) {
-      std::cerr << "StochKit ERROR (StatsOutput::writeSimulationInfoFile): Unable to open simulation info file.\n";
+      CERR << "StochKit ERROR (StatsOutput::writeSimulationInfoFile): Unable to open simulation info file.\n";
       exit(1);
     }
     

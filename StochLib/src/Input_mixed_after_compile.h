@@ -14,6 +14,7 @@
 #define _INPUT_MIXED_AFTER_COMPILE_H_
 
 #include "Input.h"
+#include "StdOutputHandler.h"
 
 #ifndef _CUSTOM_PROPENSITY_FUNCTIONS_H_
 #include "CustomPropensityFunctions.h"
@@ -61,7 +62,7 @@ namespace StochLib{
 			if( this->ParametersList[*para_it].CalculateFlag == -1 ){
 				calculationStatus = this->ParametersList.calculateParameter(*para_it);
 				if(!calculationStatus){                   
-					std::cerr << "StochKit ERROR (Input_mixed_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
+					CERR << "StochKit ERROR (Input_mixed_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
 					return BADRESULT;
 				}
 			}
@@ -69,7 +70,7 @@ namespace StochLib{
 		
 		std::string substitutedEquation = this->ParametersList.parameterSubstitution(equation);
 		if( substitutedEquation.empty() ){
-			std::cerr << "StochKit ERROR (Input_mixed_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
+			CERR << "StochKit ERROR (Input_mixed_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
 			return BADRESULT;
 		}
 		
@@ -93,7 +94,7 @@ namespace StochLib{
 			if(cur_reaction->Type == 0){
 				rate =  rateCalculation(cur_reaction->Rate);
 				if( rate == BADRESULT ){
-					std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): while calculating rate of reaction " << cur_reaction->Id<<std::endl;
+					CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): while calculating rate of reaction " << cur_reaction->Id<<std::endl;
 					exit(1);
 				}
 				switch ( cur_reaction->Reactants.size() ){
@@ -108,7 +109,7 @@ namespace StochLib{
 						else if( cur_reaction->Reactants[0].Stoichiometry == -3 )
 							propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index);
 						else{
-							std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						break;
@@ -121,7 +122,7 @@ namespace StochLib{
 							       propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[1].Index, cur_reaction->Reactants[1].Index);
 						       }
 						       else{
-							       std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							       CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							       exit(1);
 						       }
 						}
@@ -130,18 +131,18 @@ namespace StochLib{
 								propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[1].Index);
 							}
 							else{
-								std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+								CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 								exit(1);
 							}
 						}
 						else{
-							std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						break;
 					case 3:
 						if( cur_reaction->Reactants[0].Stoichiometry != -1 || cur_reaction->Reactants[1].Stoichiometry != -1 || cur_reaction->Reactants[2].Stoichiometry != -1 ){
-							std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						else{
@@ -149,23 +150,23 @@ namespace StochLib{
 						}
 						break;
 					default:
-						std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): more than 3 reactants in mass-action reaction " << cur_reaction->Id << "\n";
+						CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): more than 3 reactants in mass-action reaction " << cur_reaction->Id << "\n";
 						exit(1);
 				}
 			}
 			else if(cur_reaction->Type == 1){
-				std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): Michelis-menten not implemented yet at reaction " << cur_reaction->Id<<std::endl;
+				CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): Michelis-menten not implemented yet at reaction " << cur_reaction->Id<<std::endl;
 			}
 			else if(cur_reaction->Type == 2){
 #ifdef _CUSTOM_PROPENSITY_FUNCTIONS_H_
 				propensitiesList.pushCustomPropensity(CustomPropFuncs.propensityFunctions[i]);
 #else
-				std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): How could you possibly get here?\n" << std::endl;
+				CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): How could you possibly get here?\n" << std::endl;
 				exit(1);
 #endif
 			}
 			else{
-				std::cerr<<"StochKit ERROR (Input_mixed_after_compile::writePropensities): Unrecogonized reaction type of reaction " << cur_reaction->Id<<std::endl;
+				CERR<<"StochKit ERROR (Input_mixed_after_compile::writePropensities): Unrecogonized reaction type of reaction " << cur_reaction->Id<<std::endl;
 				exit(1);
 			}
 		}

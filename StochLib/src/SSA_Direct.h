@@ -5,7 +5,7 @@
 #ifndef _SSA_DIRECT_H_
 #define _SSA_DIRECT_H_
 
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <vector>
 #include <limits>
 #include "Random.h"

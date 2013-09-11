@@ -4,7 +4,7 @@
 #ifndef _COMMAND_LINE_INTERFACE_H_
 #define _COMMAND_LINE_INTERFACE_H_
 
-#include <iostream>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -13,6 +13,8 @@
 #include "Input_tag.h"
 #include "ModelTag.h"
 #include "DenseVectorSubset.h"
+
+#include "StdOutputHandler.h"
 
 namespace StochLib
 {

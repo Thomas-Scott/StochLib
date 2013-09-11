@@ -16,7 +16,7 @@
 #define MAXPARAMETERNUM 200 // maximum parameter number there could be
 #define BADRESULT -32678 // indicate bad result such as divisor to be 0 or something in calculation
 
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <sstream>
 #include <algorithm>
 #include <stdio.h>

@@ -11,6 +11,8 @@
 #define BADRESULT -32768
 #endif
 
+#include "StdOutputHandler.h"
+
 #include <iostream>
 #include <stdio.h>
 #include <string>

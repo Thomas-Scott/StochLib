@@ -33,6 +33,8 @@
 #include "StandardEventHandler.h"
 #include "SSA_Direct_Events.h"
 
+#include "StdOutputHandler.h"
+
 namespace StochLib
 {
  template<typename _populationVectorType,
@@ -85,7 +87,7 @@ namespace StochLib
 			if( this->ParametersList[*para_it].CalculateFlag == -1 ){
 				calculationStatus = this->ParametersList.calculateParameter(*para_it);
 				if(!calculationStatus){
-					std::cerr << "StochKit ERROR (Input_events_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
+					CERR << "StochKit ERROR (Input_events_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
 					return BADRESULT;
 				}
 			}
@@ -93,7 +95,7 @@ namespace StochLib
 		
 		std::string substitutedEquation = this->ParametersList.parameterSubstitution(equation);
 		if( substitutedEquation.empty() ){
-			std::cerr << "StochKit ERROR (Input_events_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
+			CERR << "StochKit ERROR (Input_events_after_compile::rateCalculation): while calculating rate " << equation << std::endl;
 			return BADRESULT;
 		}
 		
@@ -108,7 +110,7 @@ namespace StochLib
 #ifdef _CUSTOM_PROPENSITY_FUNCTIONS_H_
 		CustomPropensityFunctions<_populationVectorType> customPropensityFuncs;
 #else
-		std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): _CUSTOM_PROPENSITY_FUNCTIONS_H_ not #defined.\n";
+		CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): _CUSTOM_PROPENSITY_FUNCTIONS_H_ not #defined.\n";
 		exit(1);
 #endif
 		
@@ -122,7 +124,7 @@ namespace StochLib
 			if(cur_reaction->Type == 0){
 				rate =  rateCalculation(cur_reaction->Rate);
 				if( rate == BADRESULT ){
-					std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): while calculating rate of reaction " << cur_reaction->Id<<std::endl;
+					CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): while calculating rate of reaction " << cur_reaction->Id<<std::endl;
 					exit(1);
 				}
 				switch ( cur_reaction->Reactants.size() ){
@@ -137,7 +139,7 @@ namespace StochLib
 						else if( cur_reaction->Reactants[0].Stoichiometry == -3 )
 							propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index);
 						else{
-							std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						break;
@@ -150,7 +152,7 @@ namespace StochLib
 							       propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[1].Index, cur_reaction->Reactants[1].Index);
 						       }
 						       else{
-							       std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							       CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							       exit(1);
 						       }
 						}
@@ -159,18 +161,18 @@ namespace StochLib
 								propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[1].Index);
 							}
 							else{
-								std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+								CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 								exit(1);
 							}
 						}
 						else{
-							std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						break;
 					case 3:
 						if( cur_reaction->Reactants[0].Stoichiometry != -1 || cur_reaction->Reactants[1].Stoichiometry != -1 || cur_reaction->Reactants[2].Stoichiometry != -1 ){
-							std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						else{
@@ -178,24 +180,24 @@ namespace StochLib
 						}
 						break;
 					default:
-						std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): more than 3 reactants in mass-action reaction " << cur_reaction->Id << "\n";
+						CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): more than 3 reactants in mass-action reaction " << cur_reaction->Id << "\n";
 						exit(1);
 				}
 			}
 			else if(cur_reaction->Type == 1){
-				std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): Michelis-menten not implemented yet at reaction " << cur_reaction->Id<<std::endl;
+				CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): Michelis-menten not implemented yet at reaction " << cur_reaction->Id<<std::endl;
 				exit(1);
 			}
 			else if(cur_reaction->Type == 2 || cur_reaction->Type == 3){
 #ifdef _CUSTOM_PROPENSITY_FUNCTIONS_H_
 				propensitiesList.pushCustomPropensity(customPropensityFuncs.propensityFunctions[i]);
 #else
-				std::cerr << "StochKit ERROR (Input_events_after_compile::writePropensities): How could you possibly get here?\n";
+				CERR << "StochKit ERROR (Input_events_after_compile::writePropensities): How could you possibly get here?\n";
 				exit(1);
 #endif
 			}
 			else{
-				std::cerr<<"StochKit ERROR (Input_events_after_compile::writePropensities): Unrecogonized reaction type of reaction " << cur_reaction->Id<<std::endl;
+				CERR<<"StochKit ERROR (Input_events_after_compile::writePropensities): Unrecogonized reaction type of reaction " << cur_reaction->Id<<std::endl;
 				exit(1);
 			}
 		}
@@ -235,7 +237,7 @@ namespace StochLib
 				if(cur_action->Type == 0){ // ChangeSingleSpeciesPopulation - simple
 					double populationValue = this->simpleCalculator.calculateString(cur_action->Expression);
 					if(populationValue == BADRESULT){
-						std::cerr << "StochKit ERROR (Input_events_after_compile::writeEvents): while calculating population value in an action of event " << cur_event->Id<<std::endl;
+						CERR << "StochKit ERROR (Input_events_after_compile::writeEvents): while calculating population value in an action of event " << cur_event->Id<<std::endl;
 						exit(1);
 					}
 					//action sets species[Index] to value of populationValue
@@ -245,7 +247,7 @@ namespace StochLib
 				} else if (cur_action->Type == 1){ // ChangeSingleSpeciesPopulation - custom
 #ifdef _CUSTOM_CHANGE_SINGLE_SPECIES_FUNCTIONS_H_
 					if( customSinglePopulationActionCount >= CustomChangeSingleSpeciesFuncs.actionsInEvents[i].size() ){
-						std::cerr << "StochKit ERROR (Input_events_after_compile::writeEvents): CustomChangeSingleSpeciesPopulation actions of event " << cur_event->Id << " in recorded file and xml file do not comform with each other" << std::endl;
+						CERR << "StochKit ERROR (Input_events_after_compile::writeEvents): CustomChangeSingleSpeciesPopulation actions of event " << cur_event->Id << " in recorded file and xml file do not comform with each other" << std::endl;
 						exit(1);
 					}
 					//action sets species[Index] population to a custom value
@@ -253,7 +255,7 @@ namespace StochLib
 					Actions.push_back(action);
 					++customSinglePopulationActionCount;
 #else
-					std::cerr << "StochKit ERROR (Input_mixed_after_compile::writePropensities): How could you possibly get here?\n";
+					CERR << "StochKit ERROR (Input_mixed_after_compile::writePropensities): How could you possibly get here?\n";
 					exit(1);
 #endif
 				} else if (cur_action->Type == 2){ // ChangeParameter-value
@@ -265,9 +267,9 @@ namespace StochLib
 				      	ChangeParameterEventAction<_solverType, ExpressionActionFunction<_populationVectorType> > action(cur_action->Index, cur_action->Expression, solver, false);
 					Actions.push_back(action);
 				} else { // error message: unrecognized trigger type
-					std::cerr<<"StochKit ERROR (Input_events_after_compile::writeEvents): Unrecogonized action type in event " << cur_event->Id<<std::endl;
+					CERR<<"StochKit ERROR (Input_events_after_compile::writeEvents): Unrecogonized action type in event " << cur_event->Id<<std::endl;
 #ifdef DEBUG
-					std::cerr<<"action type: " << cur_action->Type << std::endl;
+					CERR<<"action type: " << cur_action->Type << std::endl;
 #endif
 					exit(1);
 				}
@@ -277,7 +279,7 @@ namespace StochLib
 			if(cur_event->Type == 0){  // time-based trigger
 				double triggerTime = this->simpleCalculator.calculateString(cur_event->Trigger);
 				if(triggerTime == BADRESULT){
-					std::cerr << "StochKit ERROR (Input_events_after_compile::writeEvents): while calculating time-based trigger value of event " << cur_event->Id<<std::endl;
+					CERR << "StochKit ERROR (Input_events_after_compile::writeEvents): while calculating time-based trigger value of event " << cur_event->Id<<std::endl;
 					exit(1);
 				}
       				TimeBasedTrigger timeTrigger(triggerTime);
@@ -289,7 +291,7 @@ namespace StochLib
 			      	CustomStateBasedTrigger<_populationVectorType> stateTrigger(CustomStateBasedTriggerFuncs.triggerFunctions[i], solver.referenceToParametersList(), true);
 				eventsHandler.insertStateEvent(new StateBasedTriggerEvent<_populationVectorType>(stateTrigger, Actions));
 			} else { // error message: unrecognized trigger type
-				std::cerr<<"StochKit ERROR (Input_events_after_compile::writeEvents): Unrecogonized trigger type of event " << cur_event->Id<<std::endl;
+				CERR<<"StochKit ERROR (Input_events_after_compile::writeEvents): Unrecogonized trigger type of event " << cur_event->Id<<std::endl;
 				exit(1);
 			}
 		}

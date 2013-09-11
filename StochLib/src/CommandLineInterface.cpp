@@ -1,7 +1,6 @@
 /*
  *	Boost Replacement functions
  */
-#include <Rcpp.h>
 #include "CommandLineInterface.h"
 
  namespace StochLib{ 
@@ -210,8 +209,6 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    	simulationTime=t;
 	    }
 
-	    Rcpp::Rcout << "simulationTime:" << simulationTime <<std::endl;
-
 	    if(cmdOptionExists(av, av+ac, "-r")){
     		char * r = getCmdOption(av,av+ac,"-r");
     		std::istringstream iss(r);
@@ -224,7 +221,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
     		iss.str(std::string());
 	    }
 
-	    Rcpp::Rcout << "realizations:" << realizations <<std::endl;
+	    Rcpp::Rcout << "Realizations:" << realizations <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-i")){
     		char * tmp = getCmdOption(av,av+ac,"-i");
@@ -239,7 +236,6 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    } else {
 	    	intervals = 0;
 	    }
-
 
 	    Rcpp::Rcout << "Intervals:" << intervals <<std::endl;
 
@@ -332,7 +328,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    }
 
 	    if (epsilon<=0.0 || epsilon>=1.0) {
-			std::cout << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.  Run with --help for more info.\n";
+			COUT << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.  Run with --help for more info.\n";
 			exit(1);
 		}
 
@@ -340,22 +336,6 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 			species = getCmdOptionList(av,av+ac,"--species");
 	    }
 
-
-	    //TODO: fix out-dir function
-	    /*
-
-
-	    if (vm.count("out-dir")) {
-			//create full path to output directory
-		outputDir=boost::filesystem::system_complete(boost::filesystem::path(vm["out-dir"].as<std::string>())).string();
-		}
-		else {
-			//create full path to output directory, default location, <full_path_to/model_filename (without extension)>_output
-		std::string tmp_full_model_path=boost::filesystem::system_complete(modelFileName).string();
-		outputDir=tmp_full_model_path.substr(0,tmp_full_model_path.find_last_of("."))+"_output";
-		}
-
-	    */
 	    if(cmdOptionExists(av,av+ac,"--out-dir")){
 	    	char * output = getCmdOption(av,av+ac,"--out-dir");
     		std::string out(output);
@@ -479,7 +459,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 						speciesSubset.push_back(index);
 					}
 					else {
-						std::cout << "StochKit ERROR (CommandLineInterface::parse): species index \""<<index<<"\" larger than number of species (Note: indices start at 0, so largest index is "<<modelSpeciesList.size()-1<<")"<<std::endl;
+						COUT << "StochKit ERROR (CommandLineInterface::parse): species index \""<<index<<"\" larger than number of species (Note: indices start at 0, so largest index is "<<modelSpeciesList.size()-1<<")"<<std::endl;
 						exit(1);
 					}
 				}

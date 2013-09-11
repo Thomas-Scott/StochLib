@@ -5,8 +5,8 @@
 #ifndef _INTERVAL_OUTPUT_H_
 #define _INTERVAL_OUTPUT_H_
 
-#include <Rcpp.h>
-#include <iostream>
+#include <StdOutputHandler.h>
+
 #include <fstream>
 #include <vector>
 #include <string>
@@ -24,7 +24,7 @@ public:
 	void serialize(std::ofstream& outfile) {
 		//assumes outfile is open to position where this object's serialized data begins
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (IntervalOutput::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (IntervalOutput::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 		outfile << data.size() << "\n";
@@ -43,7 +43,7 @@ public:
 		speciesSubset.serialize(outfile);
 
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (IntervalOutput::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (IntervalOutput::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 
@@ -56,7 +56,7 @@ public:
 	
 	void unserialize(std::ifstream& fin) {
 		if (!fin) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
 			exit(1);
 		}
 		std::size_t inputSize_t;
@@ -83,7 +83,7 @@ public:
 		speciesSubset.unserialize(fin);
 		
 		if (!fin) {
-			std::cerr << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (StatsOutput::unserialize): Unable to open file.\n";
 			exit(1);
 		}
 		fin >> inputSize_t;
@@ -144,7 +144,7 @@ public:
     //e.g. createUniformOutputTimes(0.0, 1.0, 4) returns the size=5 vector: [0.0, 0.25, 0.5, 0.75, 1.0]
     //if intervals=0, then only end time is recorded
     if (startTime>=endTime) {
-      std::cerr << "StochKit ERROR (IntervalOutput::createUniformOutputTimes): startTime must be before endTime\n";
+      CERR << "StochKit ERROR (IntervalOutput::createUniformOutputTimes): startTime must be before endTime\n";
       exit(1);
     }
     std::vector<double> outTimes(intervals+1);
@@ -195,7 +195,7 @@ public:
     }
 
     if (!outfile) {
-      std::cout << "StochKit ERROR (IntervalOutput::writeDataToFile): Unable to open output file.\n";
+      COUT << "StochKit ERROR (IntervalOutput::writeDataToFile): Unable to open output file.\n";
       exit(1);
     }
     try {
@@ -217,7 +217,7 @@ public:
       outfile.close();
     }
     catch (...) {
-      std::cout << "StochKit ERROR (IntervalOutput::writeDataToFile): error writing data to output file.\n";
+      COUT << "StochKit ERROR (IntervalOutput::writeDataToFile): error writing data to output file.\n";
       exit(1);
     }
   }
@@ -229,7 +229,7 @@ public:
     
     outfile.open(filename.c_str());
     if (!outfile) {
-      std::cout << "StochKit ERROR (IntervalOutput::writeLabelsToFile): Unable to open output file.\n";
+      COUT << "StochKit ERROR (IntervalOutput::writeLabelsToFile): Unable to open output file.\n";
       exit(1);
     }
     try {
@@ -244,7 +244,7 @@ public:
       outfile.close();
     }
     catch (...) {
-      std::cout << "StochKit ERROR (IntervalOutput::writeLabelsToFile): error writing column labels to output file.\n";
+      COUT << "StochKit ERROR (IntervalOutput::writeLabelsToFile): error writing column labels to output file.\n";
       exit(1);
     }    
   }

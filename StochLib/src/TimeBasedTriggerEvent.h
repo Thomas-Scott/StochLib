@@ -7,6 +7,7 @@
 #include "TimeBasedTrigger.h"
 #include "boost/function.hpp"
 #include <vector>
+#include "StdOutputHandler.h"
 
 namespace StochLib
 {
@@ -41,12 +42,12 @@ namespace StochLib
 
     void fire(double time, _populationVectorType& population) {
       #ifdef DEBUG
-      std::cout << "firing time-based trigger event at t="<<time<<"\n";
-      std::cout << "population before firing:\n";
+      COUT << "firing time-based trigger event at t="<<time<<"\n";
+      COUT << "population before firing:\n";
       for (std::size_t i=0; i!=population.size(); ++i) {
-	std::cout << "population["<<i<<"]="<<population[i]<<"\n";
+	COUT << "population["<<i<<"]="<<population[i]<<"\n";
       }
-      std::cout << "firing "<<actions.size()<<" actions...\n";
+      COUT << "firing "<<actions.size()<<" actions...\n";
       #endif
       
       for (std::size_t i=0; i<actions.size(); ++i) {
@@ -54,9 +55,9 @@ namespace StochLib
       }
 
       #ifdef DEBUG
-      std::cout << "population after firing:\n";
+      COUT << "population after firing:\n";
       for (std::size_t i=0; i!=population.size(); ++i) {
-	std::cout << "population["<<i<<"]="<<population[i]<<"\n";
+	COUT << "population["<<i<<"]="<<population[i]<<"\n";
       }
       #endif
     }

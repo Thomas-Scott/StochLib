@@ -81,7 +81,7 @@ SSA_Direct<_populationVectorType,
 		   _dependencyGraphType>::
 validate(double startTime, double endTime) {
 	if (startTime>=endTime) {
-		std::cout << "StochKit ERROR (SSA_Direct::validate): startTime not before endTime\n";
+		COUT << "StochKit ERROR (SSA_Direct::validate): startTime not before endTime\n";
 		return false;
 	}
 
@@ -92,26 +92,26 @@ validate(double startTime, double endTime) {
 		std::size_t M=stoichiometry.size();
 	#endif
 	if (N==0) {
-		std::cout << "StochKit ERROR (SSA_Direct::validate): initial population size=0\n";
+		COUT << "StochKit ERROR (SSA_Direct::validate): initial population size=0\n";
 		return false;
 	}
 	if (N!=NumberOfSpecies) {
-		std::cout << "StochKit ERROR (SSA_Direct::validate): Number of species does not equal initial population size\n";
+		COUT << "StochKit ERROR (SSA_Direct::validate): Number of species does not equal initial population size\n";
 		return false;
 	}
 	if (M!=NumberOfReactions) {
-		std::cout << "StochKit ERROR (SSA_Direct::validate): Number of reactions does not equal stoichiometry size\n";
+		COUT << "StochKit ERROR (SSA_Direct::validate): Number of reactions does not equal stoichiometry size\n";
 		return false;
 	}
 	if (M!=propensities.size()) {
-		std::cout << "StochKit ERROR (SSA_Direct::validate): Number of reactions does not equal propensities size\n";
+		COUT << "StochKit ERROR (SSA_Direct::validate): Number of reactions does not equal propensities size\n";
 		return false;
 	}
 
 	//check initial populations are all non-negative
 	for (std::size_t i=0; i!=NumberOfSpecies; ++i) {
 		if (initialPopulation[i]<0) {
-			std::cout << "StochKit ERROR (SSA_Direct::validate): negative value detected in initial population\n";
+			COUT << "StochKit ERROR (SSA_Direct::validate): negative value detected in initial population\n";
 			return false;
 		}
 	}
@@ -119,7 +119,7 @@ validate(double startTime, double endTime) {
 	//check that propensities, evaluated with initial population, are all non-negative
 	for (std::size_t i=0; i!=NumberOfReactions; ++i) {
 		if (propensities(i,initialPopulation)<0.0) {
-			std::cout << "StochKit ERROR (SSA_Direct::validate): negative propensity detected based on initial population\n";
+			COUT << "StochKit ERROR (SSA_Direct::validate): negative propensity detected based on initial population\n";
 			return false;
 		}
 	}
@@ -144,30 +144,30 @@ calculateAllPropensities() {
 		currentPropensities[i]=propensities(i,currentPopulation);
 		#ifdef DEBUG
 				if (currentPropensities[i]!=currentPropensities[i]) {
-					std::cout << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): detected 'NaN (not a number)' propensity for reaction index "<<i<<".\n";
-					std::cout << "currentPopulation was:\n";
+					COUT << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): detected 'NaN (not a number)' propensity for reaction index "<<i<<".\n";
+					COUT << "currentPopulation was:\n";
 					for (std::size_t j=0; j!=currentPopulation.size(); ++j) {
-						std::cout << "currentPopulation["<<j<<"]="<<currentPopulation[j]<<"\n";
+						COUT << "currentPopulation["<<j<<"]="<<currentPopulation[j]<<"\n";
 					}
-					std::cout << "Terminating.\n";
+					COUT << "Terminating.\n";
 					exit(1);
 				}
 				if (currentPropensities[i]==std::numeric_limits<double>::infinity()) {
-					std::cout << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): detected 'infinity' propensity for reaction index "<<i<<".\n";
-					std::cout << "currentPopulation was:\n";
+					COUT << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): detected 'infinity' propensity for reaction index "<<i<<".\n";
+					COUT << "currentPopulation was:\n";
 					for (std::size_t j=0; j!=currentPopulation.size(); ++j) {
-						std::cout << "currentPopulation["<<j<<"]="<<currentPopulation[j]<<"\n";
+						COUT << "currentPopulation["<<j<<"]="<<currentPopulation[j]<<"\n";
 					}
-					std::cout << "Terminating.\n";
+					COUT << "Terminating.\n";
 					exit(1);
 				}
 			if (currentPropensities[i]<0.0) {
-				std::cout << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): detected negative propensity ("<<currentPropensities[i]<<") for reaction index "<<i<<"\n";
-				std::cout << "currentPopulation was:\n";
+				COUT << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): detected negative propensity ("<<currentPropensities[i]<<") for reaction index "<<i<<"\n";
+				COUT << "currentPopulation was:\n";
 				for (std::size_t j=0; j!=currentPopulation.size(); ++j) {
-					std::cout << "currentPopulation["<<j<<"]="<<currentPopulation[j]<<"\n";
+					COUT << "currentPopulation["<<j<<"]="<<currentPopulation[j]<<"\n";
 				}
-				std::cout << "Terminating.\n";
+				COUT << "Terminating.\n";
 				exit(1);
 			}
 		#endif
@@ -181,13 +181,13 @@ calculateAllPropensities() {
 	if (propensitySum>0.0 && smallestNonzeroPropensity/propensitySum<2E-10) { //per S.Mauch, M.Stalzer. (2009) "Efficient Formulations for Exact..."
 		if (detectedVerySmallPropensity==false) {
 			detectedVerySmallPropensity=true;
-			std::cout << "StochKit WARNING (SSA_Direct::calculateAllPropensities): detected very small propensity value, biased sampling of small propensity reactions may occur\n";
+			COUT << "StochKit WARNING (SSA_Direct::calculateAllPropensities): detected very small propensity value, biased sampling of small propensity reactions may occur\n";
 		}
 	}
 	#ifdef DEBUG
 		//a reasonable place to check for possible time step inaccuracy
 		if (propensitySum>0.0 && currentTime>2E21/propensitySum) { //per Mauch, Stalzer. (2009) "Efficient Formulations..."
-			std::cout << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): ratio of average time step size to simulation currentTime is very small, may lead to step size inaccuracies\n";
+			COUT << "StochKit DEBUG (SSA_Direct::calculateAllPropensities): ratio of average time step size to simulation currentTime is very small, may lead to step size inaccuracies\n";
 		}
 	#endif
 }
@@ -206,13 +206,13 @@ selectStepSize() {
 
 	if (propensitySum<0.0) {
 			#ifdef DEBUG
-				std::cout << "StochKit DEBUG (SSA_Direct::selectStepSize): detected negative propensitySum, recalculating\n";
+				COUT << "StochKit DEBUG (SSA_Direct::selectStepSize): detected negative propensitySum, recalculating\n";
 			#endif
 	        //if propensitySum negative, recalculate all propensities
 	        calculateAllPropensities();
 		//if still negative, give warning and return infinity
 		if (propensitySum<0.0) {
-			std::cerr << "StochKit WARNING (SSA_Direct::selectStepSize): propensitySum<0, returning step size=infinity\n";
+			CERR << "StochKit WARNING (SSA_Direct::selectStepSize): propensitySum<0, returning step size=infinity\n";
 			return std::numeric_limits<double>::infinity();
 		}
 	}
@@ -248,7 +248,7 @@ selectReaction() {
 		//test that we don't run off end of array
 		if (previousReactionIndex==(int)NumberOfReactions) {
 			#ifdef DEBUG
-				std::cout << "StochKit DEBUG (SSA_Direct::selectReaction): detected numerical error in propensities, recalculating\n";
+				COUT << "StochKit DEBUG (SSA_Direct::selectReaction): detected numerical error in propensities, recalculating\n";
 			#endif
 			calculateAllPropensities();
 			return selectReaction();
@@ -256,12 +256,12 @@ selectReaction() {
 		else {
 			#ifdef DEBUG
 				if (currentPropensities[previousReactionIndex]<0.0) {
-					std::cout << "StochKit DEBUG (SSA_Direct::selectReaction): detected negative propensity ("<<currentPropensities[previousReactionIndex]<<") for reaction index "<<previousReactionIndex<<"\n";
-					std::cout << "currentPopulation was:\n";
+					COUT << "StochKit DEBUG (SSA_Direct::selectReaction): detected negative propensity ("<<currentPropensities[previousReactionIndex]<<") for reaction index "<<previousReactionIndex<<"\n";
+					COUT << "currentPopulation was:\n";
 					for (std::size_t i=0; i!=currentPopulation.size(); ++i) {
-						std::cout << "currentPopulation["<<i<<"]="<<currentPopulation[i]<<"\n";
+						COUT << "currentPopulation["<<i<<"]="<<currentPopulation[i]<<"\n";
 					}
-					std::cout << "Terminating.\n";
+					COUT << "Terminating.\n";
 					exit(1);
 				}
 			#endif			
@@ -285,7 +285,7 @@ SSA_Direct<_populationVectorType,
 fireReaction(int reactionIndex) {
 	if (reactionIndex==-1) {
 		#ifdef DEBUG
-			std::cout << "StochKit DEBUG (SSA_Direct::fireReaction): attempt to fire reaction index = -1. Terminating.\n";
+			COUT << "StochKit DEBUG (SSA_Direct::fireReaction): attempt to fire reaction index = -1. Terminating.\n";
 			exit(1);
 		#endif
 		return false;
@@ -309,23 +309,23 @@ fireReaction(int reactionIndex) {
 			currentPropensities[affectedReactionIndex]=propensities(affectedReactionIndex,currentPopulation);
 			#ifdef DEBUG
 				if (currentPropensities[affectedReactionIndex]!=currentPropensities[affectedReactionIndex]) {
-					std::cout << "StochKit DEBUG (SSA_Direct::fireReaction): detected 'NaN (not a number)' propensity for reaction index "<<affectedReactionIndex<<" while updating after firing reaction index "<<reactionIndex<<".\n";
+					COUT << "StochKit DEBUG (SSA_Direct::fireReaction): detected 'NaN (not a number)' propensity for reaction index "<<affectedReactionIndex<<" while updating after firing reaction index "<<reactionIndex<<".\n";
 				}
 				if (currentPropensities[affectedReactionIndex]==std::numeric_limits<double>::infinity()) {
-					std::cout << "StochKit DEBUG (SSA_Direct::fireReaction): detected 'infinity' propensity for reaction index "<<affectedReactionIndex<<" while updating after firing reaction index "<<reactionIndex<<".\n";
+					COUT << "StochKit DEBUG (SSA_Direct::fireReaction): detected 'infinity' propensity for reaction index "<<affectedReactionIndex<<" while updating after firing reaction index "<<reactionIndex<<".\n";
 				}
 				if (currentPropensities[affectedReactionIndex]<0.0) {
-					std::cout << "StochKit DEBUG (SSA_Direct::fireReaction): detected negative propensity for reaction index "<<affectedReactionIndex<<" while updating after firing reaction index "<<reactionIndex<<".\n";
-					std::cout << "updated currentPopulation is:\n";
+					COUT << "StochKit DEBUG (SSA_Direct::fireReaction): detected negative propensity for reaction index "<<affectedReactionIndex<<" while updating after firing reaction index "<<reactionIndex<<".\n";
+					COUT << "updated currentPopulation is:\n";
 					for (std::size_t i=0; i!=currentPopulation.size(); ++i) {
-						std::cout << "currentPopulation["<<i<<"]="<<currentPopulation[i]<<"\n";
+						COUT << "currentPopulation["<<i<<"]="<<currentPopulation[i]<<"\n";
 					}
-					std::cout << "population before firing reaction was:\n";
+					COUT << "population before firing reaction was:\n";
 					_populationVectorType oldPop=currentPopulation-=stoichiometry[reactionIndex];
 					for (std::size_t i=0; i!=oldPop.size(); ++i) {
-						std::cout << "oldPopulation["<<i<<"]="<<oldPop[i]<<"\n";
+						COUT << "oldPopulation["<<i<<"]="<<oldPop[i]<<"\n";
 					}
-					std::cout << "Terminating.\n";
+					COUT << "Terminating.\n";
 					exit(1);
 				}
 			#endif			
@@ -366,13 +366,13 @@ simulate(std::size_t realizations, double startTime, double endTime, IntervalOut
 
 	if (doValidate) {
 		if (!validate(startTime,endTime)) {
-			std::cerr << "StochKit ERROR (SSA_Direct::simulate): validate() failed, simulation aborted"<<std::endl;
+			CERR << "StochKit ERROR (SSA_Direct::simulate): validate() failed, simulation aborted"<<std::endl;
 			exit(1);
 		}		
 	}
 
 	if (!output.initialize(realizations,startTime,endTime,initialPopulation)) {
-		std::cerr << "StochKit ERROR (SSA_Direct::simulate): initialization of output object failed, simulation aborted"<<std::endl;
+		CERR << "StochKit ERROR (SSA_Direct::simulate): initialization of output object failed, simulation aborted"<<std::endl;
 		exit(1);
 	}
 	

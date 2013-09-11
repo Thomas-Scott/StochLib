@@ -7,7 +7,9 @@
 #ifndef _INPUT_MASS_ACTION_H_
 #define _INPUT_MASS_ACTION_H_
 
+#include "StdOutputHandler.h"
 #include "Input.h"
+
 
 namespace StochLib
 {
@@ -52,7 +54,7 @@ namespace StochLib
 			if( this->ParametersList[*para_it].CalculateFlag == -1 ){
 				calculationStatus = this->ParametersList.calculateParameter(*para_it);
 				if(!calculationStatus){                   
-					std::cerr << "StochKit ERROR (Input_mass_action::rateCalculation): while calculating rate " << equation << std::endl;
+					CERR << "StochKit ERROR (Input_mass_action::rateCalculation): while calculating rate " << equation << std::endl;
 					return BADRESULT;
 				}
 			}
@@ -60,7 +62,7 @@ namespace StochLib
 		
 		std::string substitutedEquation = this->ParametersList.parameterSubstitution(equation);
 		if( substitutedEquation.empty() ){
-			std::cerr << "StochKit ERROR (Input_mass_action::rateCalculation): while calculating rate " << equation << std::endl;
+			CERR << "StochKit ERROR (Input_mass_action::rateCalculation): while calculating rate " << equation << std::endl;
 			return BADRESULT;
 		}
 		
@@ -82,7 +84,7 @@ namespace StochLib
 			if(cur_reaction->Type == 0){
 				rate = rateCalculation(cur_reaction->Rate);
 				if( rate == BADRESULT ){
-					std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): while calculating rate of reaction " << cur_reaction->Id << "\n";
+					CERR << "StochKit ERROR (Input_mass_action::writePropensities): while calculating rate of reaction " << cur_reaction->Id << "\n";
 					exit(1);
 				}
 				switch ( cur_reaction->Reactants.size() ){
@@ -97,7 +99,7 @@ namespace StochLib
 						else if( cur_reaction->Reactants[0].Stoichiometry == -3 )
 							propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index);
 						else{
-							std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						break;
@@ -108,7 +110,7 @@ namespace StochLib
 						       else if (cur_reaction->Reactants[1].Stoichiometry == -2)
 							       propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[1].Index, cur_reaction->Reactants[1].Index);
 						       else{
-							       std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							       CERR << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							       exit(1);
 						       }
 						}
@@ -116,18 +118,18 @@ namespace StochLib
 							if (cur_reaction->Reactants[1].Stoichiometry == -1)
 								propensitiesList.pushSimplePropensity(rate, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[0].Index, cur_reaction->Reactants[1].Index);
 							else{
-								std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+								CERR << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 								exit(1);
 							}
 						}
 						else{
-							std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						break;
 					case 3:
 						if( cur_reaction->Reactants[0].Stoichiometry != -1 || cur_reaction->Reactants[1].Stoichiometry != -1 || cur_reaction->Reactants[2].Stoichiometry != -1 ){
-							std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
+							CERR << "StochKit ERROR (Input_mass_action::writePropensities): currently the highest order mass-action reaction supported is tri-molecular reaction while Reaction " << cur_reaction->Id << " is not\n";
 							exit(1);
 						}
 						else
@@ -135,12 +137,12 @@ namespace StochLib
 						
 						break;
 					default:
-						std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): more than 3 reactants in mass-action reaction " << cur_reaction->Id << "\n";
+						CERR << "StochKit ERROR (Input_mass_action::writePropensities): more than 3 reactants in mass-action reaction " << cur_reaction->Id << "\n";
 						exit(1);
 				}
 			}
 			else{
-			          std::cerr << "StochKit ERROR (Input_mass_action::writePropensities): reaction " << cur_reaction->Id << " is not a mass-action reaction\n";
+			          CERR << "StochKit ERROR (Input_mass_action::writePropensities): reaction " << cur_reaction->Id << " is not a mass-action reaction\n";
 				  exit(1);
 			}
 		}

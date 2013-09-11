@@ -8,7 +8,8 @@
 #ifndef _HISTOGRAM_OUTPUT_H_
 #define _HISTOGRAM_OUTPUT_H_
 
-#include <iostream>
+#include "StdOutputHandler.h"
+  
 #include <vector>
 #include <string>
 #include <cmath>
@@ -27,7 +28,7 @@ public:
   	void serialize(std::ofstream& outfile) {
 		//assumes outfile is open to position where this object's serialized data begins
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (Histogram::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (Histogram::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 		outfile << _numberOfIntervals << "\n";
@@ -35,7 +36,7 @@ public:
 		outfile << _numberOfRealizations << "\n";
 		_speciesSubset.serialize(outfile);
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (HistogramOutput::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (HistogramOutput::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 		outfile << _numberOfSpecies << "\n";
@@ -53,7 +54,7 @@ public:
 
 	void unserialize(std::ifstream& fin) {
 		if (!fin) {
-			std::cerr << "StochKit ERROR (HistogramOutput::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (HistogramOutput::unserialize): Unable to open file.\n";
 			exit(1);
 		}
 		std::size_t inputSize_t;
@@ -204,7 +205,7 @@ public:
   virtual bool initialize(std::size_t realizations, double startTime, double endTime, _populationVectorType& samplePopulationVector) {
     if(_numberOfRealizations != realizations){
       if (_numberOfRealizations>0) {// previously set
-	std::cout<<"StochKit MESSAGE (HistogramOutput::initialize): the number of realizations differ from the previously declared value\n";
+	COUT<<"StochKit MESSAGE (HistogramOutput::initialize): the number of realizations differ from the previously declared value\n";
       }
     }
     if(_numberOfRealizations==0) // has not been set yet
@@ -212,7 +213,7 @@ public:
     if(_numberOfSpecies ==0) // has not been initialized -> keep all true
       _numberOfSpecies = _speciesSubset.getSubset(samplePopulationVector).size();
     if(_numberOfBins <1){
-      std::cout<<"StochKit ERROR (HistogramOutput::initialize): number of bins must be greater than 0\n";
+      COUT<<"StochKit ERROR (HistogramOutput::initialize): number of bins must be greater than 0\n";
       exit(1);
     }
     if(_outputTimes.size()==0){
@@ -228,7 +229,7 @@ public:
       }
     }
     if(_histograms.size()<1){
-      std::cout<<"StochKit ERROR (HistogramOutput::initialize): histograms have not been initialized\n";
+      COUT<<"StochKit ERROR (HistogramOutput::initialize): histograms have not been initialized\n";
       exit(1);
     }
     return true;
@@ -239,7 +240,7 @@ public:
   void record(std::size_t realization, std::size_t interval,_populationVectorType population) {
 #ifndef DEBUG_StochKit  
     if (interval>=_numberOfIntervals || interval<0){
-      std::cout<<"StochKit ERROR (HistogramOutput::record): interval index out of bound\n";
+      COUT<<"StochKit ERROR (HistogramOutput::record): interval index out of bound\n";
       exit(1);
     }
 #endif	 
@@ -253,11 +254,11 @@ public:
   const HistogramSingle<typename _populationVectorType::value_type>&  operator()(const std::size_t interval, const std::size_t speciesIndex) const {
 #ifndef DEBUG_StochKit  
     if (interval>_numberOfIntervals || interval<0){
-      std::cout<<"StochKit ERROR (HistogramOutput::operator()): interval index out of bound\n";
+      COUT<<"StochKit ERROR (HistogramOutput::operator()): interval index out of bound\n";
       exit(1);
     }
     if (speciesIndex>=_numberOfSpecies || speciesIndex<0){
-      std::cout<<"StochKit ERROR (HistogramOutput::operator()): speciesIndex out of bound\n";
+      COUT<<"StochKit ERROR (HistogramOutput::operator()): speciesIndex out of bound\n";
       exit(1);
     }
 #endif
@@ -269,12 +270,12 @@ public:
 #ifndef DEBUG_StochKit  
     //check to ensure no duplicates and increasing order
     if (outputTimes[0]<0){
-      std::cout<<"StochKit ERROR (HistogramOutput::setOutputTimes): negative initial time\n";
+      COUT<<"StochKit ERROR (HistogramOutput::setOutputTimes): negative initial time\n";
       exit(1);
     }
     for(std::size_t i=1; i<outputTimes.size();i++){
       if (outputTimes[i]<=outputTimes[i-1]){
-	std::cout<<"StochKit ERROR (HistogramOutput::setOutputTimes): outputTimes not monotonically increasing\n";
+	COUT<<"StochKit ERROR (HistogramOutput::setOutputTimes): outputTimes not monotonically increasing\n";
 	exit(1);
       }
     }

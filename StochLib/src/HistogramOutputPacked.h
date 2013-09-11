@@ -8,7 +8,8 @@
 #ifndef _HISTOGRAM_OUTPUT_PACKED_H_
 #define _HISTOGRAM_OUTPUT_PACKED_H_
 
-#include <iostream>
+#include "StdOutputHandler.h"
+  
 #include <vector>
 #include <string>
 #include <cmath>
@@ -150,7 +151,7 @@ namespace StochLib
   virtual bool initialize(std::size_t realizations, double startTime, double endTime, _populationVectorType& samplePopulationVector) {
     if(_numberOfRealizations != realizations){
       if (_numberOfRealizations>0) {// previously set
-	std::cout<<"StochKit MESSAGE (HistogramOutputPacked::initialize): the number of realizations differ from the previously declared value\n";
+	COUT<<"StochKit MESSAGE (HistogramOutputPacked::initialize): the number of realizations differ from the previously declared value\n";
       }
     }
     if(_numberOfRealizations==0) // has not been set yet
@@ -158,7 +159,7 @@ namespace StochLib
     if(_numberOfSpecies ==0) // has not been initialized -> keep all true
       _numberOfSpecies = _speciesSubset.getSubset(samplePopulationVector).size();
     if(_numberOfBins <1){
-      std::cout<<"StochKit ERROR (HistogramOutputPacked::initialize): number of bins must be greater than 0\n";
+      COUT<<"StochKit ERROR (HistogramOutputPacked::initialize): number of bins must be greater than 0\n";
       exit(1);
     }
     if(_outputTimes.size()==0){
@@ -174,7 +175,7 @@ namespace StochLib
       }
     }
     if(_histograms.size()<1){
-      std::cout<<"StochKit ERROR (HistogramOutputPacked::initialize): histograms have not been initialized\n";
+      COUT<<"StochKit ERROR (HistogramOutputPacked::initialize): histograms have not been initialized\n";
       exit(1);
     }
     return true;
@@ -185,7 +186,7 @@ namespace StochLib
   void record(std::size_t realization, std::size_t interval,_populationVectorType population) {
 #ifndef DEBUG_StochKit  
     if (interval>=_numberOfIntervals || interval<0){
-      std::cout<<"StochKit ERROR (HistogramOutputPacked::record): interval index out of bound\n";
+      COUT<<"StochKit ERROR (HistogramOutputPacked::record): interval index out of bound\n";
       exit(1);
     }
 #endif	 
@@ -199,11 +200,11 @@ namespace StochLib
   const HistogramOutput<typename _populationVectorType::value_type>&  operator()(const std::size_t interval, const std::size_t speciesIndex) const {
 #ifndef DEBUG_StochKit  
     if (interval>_numberOfIntervals || interval<0){
-      std::cout<<"StochKit ERROR (HistogramOutputPacked::operator()): interval index out of bound\n";
+      COUT<<"StochKit ERROR (HistogramOutputPacked::operator()): interval index out of bound\n";
       exit(1);
     }
     if (speciesIndex>=_numberOfSpecies || speciesIndex<0){
-      std::cout<<"StochKit ERROR (HistogramOutputPacked::operator()): speciesIndex out of bound\n";
+      COUT<<"StochKit ERROR (HistogramOutputPacked::operator()): speciesIndex out of bound\n";
       exit(1);
     }
 #endif
@@ -215,12 +216,12 @@ namespace StochLib
 #ifndef DEBUG_StochKit  
     //check to ensure no duplicates and increasing order
     if (outputTimes[0]<0){
-      std::cout<<"StochKit ERROR (HistogramOutputPacked::setOutputTimes): negative initial time\n";
+      COUT<<"StochKit ERROR (HistogramOutputPacked::setOutputTimes): negative initial time\n";
       exit(1);
     }
     for(std::size_t i=1; i<outputTimes.size();i++){
       if (outputTimes[i]<=outputTimes[i-1]){
-	std::cout<<"StochKit ERROR (HistogramOutputPacked::setOutputTimes): outputTimes not monotonically increasing\n";
+	COUT<<"StochKit ERROR (HistogramOutputPacked::setOutputTimes): outputTimes not monotonically increasing\n";
 	exit(1);
       }
     }

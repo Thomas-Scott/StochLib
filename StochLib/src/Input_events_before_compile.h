@@ -81,7 +81,7 @@ namespace StochLib
 						begin = begin + speciesReference.str().size();
 					}
 					else{
-						std::cout << "StochKit WARNING (Input_events_before_compile::customPropensitySubstitution): function \"" << parameterName << "\" written into custom propensity function, please make sure it's a legitimate c++ function \n";
+						COUT << "StochKit WARNING (Input_events_before_compile::customPropensitySubstitution): function \"" << parameterName << "\" written into custom propensity function, please make sure it's a legitimate c++ function \n";
 						begin = begin + parameterName.size();
 					}
 				}
@@ -132,7 +132,7 @@ namespace StochLib
 				customPropensityFunction = customPropensitySubstitution(cur_reaction->Customized);
 			
 				if(customPropensityFunction.empty()){
-					std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " << cur_reaction->Id << std::endl;
+					CERR << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " << cur_reaction->Id << std::endl;
 					customPropensityFile.close();
 					exit(1);
 				}
@@ -141,7 +141,7 @@ namespace StochLib
 				customPropensityFunction = customPropensitySubstitution(cur_reaction->Rate);
 
 				if(customPropensityFunction.empty()){
-					std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " << cur_reaction->Id << std::endl;
+					CERR << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " << cur_reaction->Id << std::endl;
 					customPropensityFile.close();
 					exit(1);
 				}
@@ -158,7 +158,7 @@ namespace StochLib
 						else if( cur_reaction->Reactants[0].Stoichiometry == -2 )
 							customPropensityFunction.append("*"+reactant11.str()+"*("+reactant11.str()+"-1)/2");
 						else
-							std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): reactant's stoichiometry isn't -1 or -2 in mass-action reaction " + cur_reaction->Id + "\n";
+							CERR << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): reactant's stoichiometry isn't -1 or -2 in mass-action reaction " + cur_reaction->Id + "\n";
 						}
 						break; 
 					case 2:
@@ -170,13 +170,13 @@ namespace StochLib
 						}
 						break;
 					default:
-						std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): more than 2 reactants in mass-action reaction " + cur_reaction->Id<<std::endl;
+						CERR << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): more than 2 reactants in mass-action reaction " + cur_reaction->Id<<std::endl;
 						exit(1);
 				}
 			}
 
 			if(customPropensityFunction.empty()){
-				std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " + cur_reaction->Id<<std::endl;
+				CERR << "StochKit ERROR (Input_events_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " + cur_reaction->Id<<std::endl;
 				customPropensityFile.close();
 				exit(1);
 			}
@@ -243,7 +243,7 @@ namespace StochLib
 			std::string customTriggerFunction = customPropensitySubstitution(cur_event->Trigger);
 
 			if(customTriggerFunction.empty()){
-				std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomStateBasedTriggerFunctionsFile): while parsing the trigger function of event " + cur_event->Id<<std::endl;
+				CERR << "StochKit ERROR (Input_events_before_compile::writeCustomStateBasedTriggerFunctionsFile): while parsing the trigger function of event " + cur_event->Id<<std::endl;
 				customStateBasedTriggerFile.close();
 				exit(1);
 			}
@@ -306,7 +306,7 @@ namespace StochLib
 					std::string customChangeSingleSpeciesFunction = customPropensitySubstitution(cur_event->ActionsList[j].Expression);
 			
 					if(customChangeSingleSpeciesFunction.empty()){
-						std::cerr << "StochKit ERROR (Input_events_before_compile::writeCustomChangeSingleSpeciesFunctionsFile): while parsing the custom Change Single Species function of an action in event " + cur_event->Id<<std::endl;
+						CERR << "StochKit ERROR (Input_events_before_compile::writeCustomChangeSingleSpeciesFunctionsFile): while parsing the custom Change Single Species function of an action in event " + cur_event->Id<<std::endl;
 						customChangeSingleSpeciesFile.close();
 						exit(1);
 					}

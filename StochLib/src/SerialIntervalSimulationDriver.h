@@ -4,7 +4,7 @@
 #ifndef _SERIAL_INTERVAL_SIMULATION_DRIVER_H_
 #define _SERIAL_INTERVAL_SIMULATION_DRIVER_H_
 
-#include <Rcpp.h>
+#include "StdOutputHandler.h"
 
 #include "Input_mass_action.h"
 #include "CommandLineInterface.h"
@@ -138,10 +138,6 @@ public:
     output.setKeepHistograms(commandLine.getKeepHistograms());
     output.setHistogramBins(commandLine.getHistogramBins());
 
-
-
-    Rcpp::Rcout << commandLine.getSpeciesSubset().size() << std::endl;
-
     if (commandLine.getSpeciesSubset().size()!=0) {
       output.setSpeciesSubset(commandLine.getSpeciesSubset());
     }
@@ -200,7 +196,7 @@ public:
 	std::ofstream outfile;
 	outfile.open((commandLine.getOutputDir()+"/"+commandLine.getHistogramsDir()+"/"+commandLine.getHistogramsInfoFileName()).c_str());
 	if (!outfile) {
-	  std::cerr << "StochKit ERROR (SerialIntervalSimulationDriver::writeOutput): Unable to open histogram info file for writing.\n";
+	  CERR << "StochKit ERROR (SerialIntervalSimulationDriver::writeOutput): Unable to open histogram info file for writing.\n";
 	  exit(1);
 	}
 	

@@ -119,9 +119,9 @@ namespace StochLib
 		try {
 			if (dirExists(outputDir)) {
 				if (!commandLine.getForce()) {
-					std::cout << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): output directory \""<<outputDir<<"\" already exists.\n";
-					std::cout << "Delete existing directory, use --out-dir to specify a unique directory name, or run with --force to overwrite.\n";
-					std::cout << "Simulation terminated.\n";
+					COUT << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): output directory \""<<outputDir<<"\" already exists.\n";
+					COUT << "Delete existing directory, use --out-dir to specify a unique directory name, or run with --force to overwrite.\n";
+					COUT << "Simulation terminated.\n";
 					exit(1);
 				} else {
 					//delete existing directory
@@ -130,14 +130,13 @@ namespace StochLib
 						//currently, that is the risk one takes in using --force
 						deleteDir(outputDir);
 					} else {
-						std::cerr << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): output directory \""<<outputDir<<"\" exists but is not a directory.\n";
-						std::cerr << "Delete existing file or use --out-dir to specify a unique directory name.\n";
-						std::cerr << "Simulation terminated.\n";
+						CERR << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): output directory \""<<outputDir<<"\" exists but is not a directory.\n";
+						CERR << "Delete existing file or use --out-dir to specify a unique directory name.\n";
+						CERR << "Simulation terminated.\n";
 						exit(1);
 					}
 				}
 			}
-			Rcpp::Rcout << "Here."<<std::endl;
 			createDir(outputDir);
 #ifdef WIN32
 			if (commandLine.getKeepStats()) {
@@ -188,7 +187,7 @@ namespace StochLib
 #endif
 		}
 		catch (...) {
-			std::cerr << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): error creating output directory.\n";
+			CERR << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): error creating output directory.\n";
 			exit(1);
 		}
 	}
@@ -205,15 +204,15 @@ namespace StochLib
 					}
 					//abort if it exists but is not a directory
 					else {
-						std::cerr << "StochKit ERROR (StandardDriverUtilities::compileMixed): generated code directory \""<<generatedCodeDir<<"\" already exists and is not a directory.\n";
-						std::cerr << "Simulation terminated.\n";
+						CERR << "StochKit ERROR (StandardDriverUtilities::compileMixed): generated code directory \""<<generatedCodeDir<<"\" already exists and is not a directory.\n";
+						CERR << "Simulation terminated.\n";
 						exit(1);
 					}
 				}
 				createDir(generatedCodeDir);
 			}
 			catch (...) {
-				std::cerr << "StochKit ERROR (StandardDriverUtilities::compileMixed): error creating output directory.\n";
+				CERR << "StochKit ERROR (StandardDriverUtilities::compileMixed): error creating output directory.\n";
 				exit(1);
 			}
 
@@ -255,17 +254,17 @@ namespace StochLib
 			std::string makeCommand=(std::string)"msbuild \""+pathName+"\" /t:"+executableName+":rebuild /clp:NoSummary /p:configuration=debug /v:q /nologo /flp:LogFile=\""+generatedCodeDir+"\\compile-log.txt\";Verbosity=diagnostic";
 #endif
 
-			std::cout << "StochKit MESSAGE: compiling generated code...this will take a few moments...\n";
+			COUT << "StochKit MESSAGE: compiling generated code...this will take a few moments...\n";
 			int returnValue=system(makeCommand.c_str());
 
 			if (returnValue!=0) {
-				std::cout << "StochKit ERROR: compile of generated code failed.  Simulation terminated.\n";
+				COUT << "StochKit ERROR: compile of generated code failed.  Simulation terminated.\n";
 				//copy hidden compile-log to visible log (this seens useless for windows)
 			//std::string command="copy /B "+commandLine.getGeneratedCodeDir()+"\\.compile-log.txt "+commandLine.getGeneratedCodeDir()+"\\compile-log.txt";
 
 			//	system(command.c_str());
 
-				std::cout << "Check log file \"" << generatedCodeDir<<"\\compile-log.txt\" for error messages.\n";
+				COUT << "Check log file \"" << generatedCodeDir<<"\\compile-log.txt\" for error messages.\n";
 				exit(1);
 			}
 
@@ -285,8 +284,8 @@ namespace StochLib
 					}
 					//abort if it exists but is not a directory
 					else {
-						std::cerr << "StochKit ERROR (StandardDriverUtilities::compileMixed): generated code directory \""<<commandLine.getGeneratedCodeDir()<<"\" already exists and is not a directory.\n";
-						std::cerr << "Simulation terminated.\n";
+						CERR << "StochKit ERROR (StandardDriverUtilities::compileMixed): generated code directory \""<<commandLine.getGeneratedCodeDir()<<"\" already exists and is not a directory.\n";
+						CERR << "Simulation terminated.\n";
 						exit(1);
 					}
 				}
@@ -294,7 +293,7 @@ namespace StochLib
 				createDir(commandLine.getGeneratedCodeDir()+"/bin");
 			}
 			catch (...) {
-				std::cerr << "StochKit ERROR (StandardDriverUtilities::compileMixed): error creating output directory.\n";
+				CERR << "StochKit ERROR (StandardDriverUtilities::compileMixed): error creating output directory.\n";
 				exit(1);
 			}
 
@@ -332,18 +331,18 @@ namespace StochLib
 			//updated so generated code path is a full path sanft 2011/03/21
 			makeCommand+=" > "+commandLine.getGeneratedCodeDir()+"/.compile-log.txt 2>&1";
 
-			std::cout << "StochKit MESSAGE: compiling generated code...this will take a few moments...\n";
+			COUT << "StochKit MESSAGE: compiling generated code...this will take a few moments...\n";
 			int returnValue=system(makeCommand.c_str());
 
 			if (returnValue!=0) {
-				std::cout << "StochKit ERROR: compile of generated code failed.  Simulation terminated.\n";
+				COUT << "StochKit ERROR: compile of generated code failed.  Simulation terminated.\n";
 				//copy hidden compile-log to visible log
 				//updated so generated code path is a full path sanft 2011/03/21
 				std::string command="cp "+commandLine.getGeneratedCodeDir()+"/.compile-log.txt "+commandLine.getGeneratedCodeDir()+"/compile-log.txt";
 
 				system(command.c_str());
 
-				std::cout << "Check log file \"" << commandLine.getGeneratedCodeDir()<<"/compile-log.txt\" for error messages.\n";
+				COUT << "Check log file \"" << commandLine.getGeneratedCodeDir()<<"/compile-log.txt\" for error messages.\n";
 				exit(1);
 			}
 

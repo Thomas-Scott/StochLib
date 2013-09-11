@@ -84,7 +84,7 @@ namespace StochLib
 						begin = begin + speciesReference.str().size();
 					}
 					else{
-						std::cout << "StochKit WARNING (Input_mixed_before_compile::customPropensitySubstitution): function \"" << parameterName << "\" written into custom propensity function, please make sure it's a legitimate c++ function \n";
+						COUT << "StochKit WARNING (Input_mixed_before_compile::customPropensitySubstitution): function \"" << parameterName << "\" written into custom propensity function, please make sure it's a legitimate c++ function \n";
 						begin = begin + parameterName.size();
 					}
 				}
@@ -126,7 +126,7 @@ namespace StochLib
 				customPropensityList.push_back(i);
 				std::string customPropensityFunction = customPropensitySubstitution(cur_reaction->Customized);
 				if(customPropensityFunction.empty()){
-					std::cerr << "StochKit ERROR (Input_mixed_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " << cur_reaction->Id<<std::endl;
+					CERR << "StochKit ERROR (Input_mixed_before_compile::writeCustomPropensityFunctionsFile): while parsing the custom propensity function of reaction " << cur_reaction->Id<<std::endl;
 					customPropensityFile.close();
 					exit(1);
 				}

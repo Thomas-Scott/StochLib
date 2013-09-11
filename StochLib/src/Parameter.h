@@ -13,6 +13,7 @@
 #define BADRESULT -32678 // indicate bad result such as divisor to be 0 or something in calculation
 #endif
 
+#include "StdOutputHandler.h"
 #include <iostream>
 #include <sstream>
 #include <algorithm>

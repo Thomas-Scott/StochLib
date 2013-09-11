@@ -3,7 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
+#include "StdOutputHandler.h"
 #include <limits>
 #include <numeric>
 #include <stdio.h>
@@ -26,7 +26,7 @@ public:
 	void serialize(std::ofstream& outfile) {
 		//assumes outfile is open to position where this object's serialized data begins
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (Histogram::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (Histogram::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 		outfile << _lowerBound << "\n";
@@ -45,7 +45,7 @@ public:
  
  	void unserialize(std::ifstream& fin) {
 		if (!fin) {
-			std::cerr << "StochKit ERROR (HistogramSingle::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (HistogramSingle::unserialize): Unable to open file.\n";
 			exit(1);
 		}
 		double inputDouble;
@@ -98,14 +98,14 @@ public:
     _inverseWidth=iwd;
 #ifndef DEBUG_StochKit 
     if (data.size()!=_size){
-      std::cout<<"StochKit ERROR (HistogramSingle::setHistogramData): requires bin sizes to be the same\n";
+      COUT<<"StochKit ERROR (HistogramSingle::setHistogramData): requires bin sizes to be the same\n";
       exit(1);
     }
 #endif
     for(std::size_t i=0;i<_size;i++){
       _data[i]=data[i];
     }
-    // std::cout<<"lb: "<<_lowerBound<<" ub:"<<_upperBound<<" width:"<<_width<<" iwidth:"<<_inverseWidth<<'\n';
+    // COUT<<"lb: "<<_lowerBound<<" ub:"<<_upperBound<<" width:"<<_width<<" iwidth:"<<_inverseWidth<<'\n';
   }
 
  
@@ -132,7 +132,7 @@ public:
     _data(size,0){
 #ifndef DEBUG_StochKit 
     if(size<1){
-      std::cout<<"StochKit ERROR (HistogramSingle::HistogramSingle): requires bin size greater than 0\n";
+      COUT<<"StochKit ERROR (HistogramSingle::HistogramSingle): requires bin size greater than 0\n";
       exit(1);
     }
 #endif
@@ -158,11 +158,11 @@ public:
   void initialize(const std::size_t size, std::size_t tIndex, std::size_t sIndex) {
 #ifndef DEBUG_StochKit
     if (size<1){
-      std::cout<<"StochKit ERROR (HistogramSingle::initialize): requires bin size greater than 0\n";
+      COUT<<"StochKit ERROR (HistogramSingle::initialize): requires bin size greater than 0\n";
       exit(1);
     }
     if (_size>0){ // bin size is already determined. cannot be overwriiten unless syncro function is used
-      std::cout<<"StochKit ERROR (HistogramSingle::initialize): bin size is already determined\n";
+      COUT<<"StochKit ERROR (HistogramSingle::initialize): bin size is already determined\n";
       exit(1);
     }
 #endif
@@ -246,7 +246,7 @@ public:
       }
     }
 #ifndef DEBUG_StochKit
-    std::cout<<"StochKit ERROR (HistogramSingle::computeMinimumNonzero)  \n";
+    COUT<<"StochKit ERROR (HistogramSingle::computeMinimumNonzero)  \n";
     return 0.;
 #endif
   }
@@ -259,7 +259,7 @@ public:
       }
     }
 #ifndef DEBUG_StochKit
-    std::cout<<"StochKit ERROR (HistogramSingle::computeMaximumNonzero)  \n";
+    COUT<<"StochKit ERROR (HistogramSingle::computeMaximumNonzero)  \n";
     return 0.;
 #endif
   }
@@ -267,7 +267,7 @@ public:
   int getCounts(std::size_t index) const{
 #ifndef DEBUG_StochKit
     if (index<0 || index>=_size){
-      std::cout<<"StochKit ERROR (HistogramSingle::getCounts) requires 0 <= index < numberOfBins  \n";
+      COUT<<"StochKit ERROR (HistogramSingle::getCounts) requires 0 <= index < numberOfBins  \n";
       return 1;
     }
 #endif
@@ -283,7 +283,7 @@ public:
 
 #ifndef DEBUG_StochKit
     if (event<0){
-      std::cout<<"StochKit ERROR (HistogramSingle::accumulate) requires population to be non-negative \n";
+      COUT<<"StochKit ERROR (HistogramSingle::accumulate) requires population to be non-negative \n";
       exit(1);
     }
 #endif
@@ -334,7 +334,7 @@ public:
   void rebuild( _populationValueType low,  double high, double newWidth) {
 #ifndef DEBUG_StochKit
     if(low < 0 || low >= high){
-      std::cout<<"StochKit ERROR (HistogramSingle::rebuild): invalid population counts\n";
+      COUT<<"StochKit ERROR (HistogramSingle::rebuild): invalid population counts\n";
       exit(1);
     }
 #endif
@@ -356,7 +356,7 @@ public:
 
 #ifndef DEBUG_StochKit
 	if(newLowerBound>event || event>= newUpperBound){
-	  std::cout<<"StochKit ERROR (HistogramSingle::rebuild): invalid new upper and/or lower bound\n";
+	  COUT<<"StochKit ERROR (HistogramSingle::rebuild): invalid new upper and/or lower bound\n";
 	  exit(1);
 	}
 #endif	 
@@ -377,17 +377,17 @@ public:
   void mergeHistogram( HistogramSingle<_populationValueType> x){
 #ifndef DEBUG_StochKit
     if (size() != x.size()){
-      std::cout<<"StochKit ERROR (HistogramSingle::mergeHistogram): bin size of two histograms must be equal\n";
+      COUT<<"StochKit ERROR (HistogramSingle::mergeHistogram): bin size of two histograms must be equal\n";
       exit(1);
     }
 #endif   
     // check to make sure time and species index are identical
     if (x._getSpeciesIndex()!=_speciesIndex){
-      std::cout<<"StochKit ERROR (HistogramSingle::mergeHistogram): species indices must match\n";
+      COUT<<"StochKit ERROR (HistogramSingle::mergeHistogram): species indices must match\n";
       exit(1);
     }
     if (x._getTimeIndex()!= _timeIndex){
-     std::cout<<"StochKit ERROR (HistogramSingle::mergeHistogram): time indices must match\n";
+     COUT<<"StochKit ERROR (HistogramSingle::mergeHistogram): time indices must match\n";
       exit(1);
     }
 
@@ -412,11 +412,11 @@ public:
     rebuild(lower, upper, width);
     x.rebuild(lower, upper, width);
     if(x.getLowerBound()!=_lowerBound){
-      std::cout << "StochKit ERROR (HistogramSingle::mergeHistogram): lower bounds do not match after rebuild.\n";
+      COUT << "StochKit ERROR (HistogramSingle::mergeHistogram): lower bounds do not match after rebuild.\n";
       exit(1);
     }
     if(x.getWidth()!=_width){
-      std::cout << "StochKit ERROR (HistogramSingle::mergeHistogram): lower bounds do not match after rebuild.\n";
+      COUT << "StochKit ERROR (HistogramSingle::mergeHistogram): lower bounds do not match after rebuild.\n";
       exit(1);
     }
     // merge data
@@ -439,7 +439,7 @@ public:
 
     outfile.open(filename.c_str());
     if (!outfile) {
-      std::cout << "StochKit ERROR (HistogramSingle::writeToFile): Unable to open output file \"" << filename << "\".\n";
+      COUT << "StochKit ERROR (HistogramSingle::writeToFile): Unable to open output file \"" << filename << "\".\n";
       exit(1);
     }
     try {
@@ -455,7 +455,7 @@ public:
       outfile.close();
     }
     catch (...) {
-      std::cout << "StochKit ERROR (HistogramSingle::writeToFile): error writing data to output file.\n";
+      COUT << "StochKit ERROR (HistogramSingle::writeToFile): error writing data to output file.\n";
       exit(1);
     } 
   }
@@ -465,7 +465,7 @@ public:
 
     outfile.open(filename.c_str());
     if (!outfile) {
-      std::cout << "StochKit ERROR (HistogramSingle::writeToFile): Unable to open output file \"" << filename << "\".\n";
+      COUT << "StochKit ERROR (HistogramSingle::writeToFile): Unable to open output file \"" << filename << "\".\n";
       exit(1);
     }
     try {
@@ -481,7 +481,7 @@ public:
       outfile.close();
     }
     catch (...) {
-      std::cout << "StochKit ERROR (HistogramSingle::writeToFile): error writing data to output file.\n";
+      COUT << "StochKit ERROR (HistogramSingle::writeToFile): error writing data to output file.\n";
       exit(1);
     } 
   }
@@ -493,7 +493,7 @@ public:
    
 
     if (!histIn) {
-      std::cerr << "StochKit ERROR (HistogramSingle::createFromFiles): Unable to open histogram file "<< filename<<".\n";
+      CERR << "StochKit ERROR (HistogramSingle::createFromFiles): Unable to open histogram file "<< filename<<".\n";
       exit(1);
     }
     // HistogramSingle member variables 
@@ -552,7 +552,7 @@ public:
     upperBound = tempV.at(1);
     width = tempV.at(2);
     inverseWidth = tempV.at(3);
-    //std::cout<<lowerBound<<'\t'<<upperBound<<'\t'<<width<<'\t'<<size<<'\t'<<inverseWidth<<'\n';   
+    //COUT<<lowerBound<<'\t'<<upperBound<<'\t'<<width<<'\t'<<size<<'\t'<<inverseWidth<<'\n';   
 
     //read in the third line -> data
     std::getline(histIn,line);

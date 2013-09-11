@@ -4,6 +4,7 @@
 #ifndef _STANDARD_EVENT_HANDLER_H_
 #define _STANDARD_EVENT_HANDLER_H_
 
+#include "StdOutputHandler.h"
 #include <vector>
 #include <limits>
 #include "boost/ptr_container/ptr_list.hpp"
@@ -121,7 +122,7 @@ public:
 	timeBasedEventListType temporaryTimeEvents;//used for storing events that are created by other events
 		
 	void insertTemporaryTimeBasedEvent(timeBasedEventType* event) {
-		std::cout << "creation of temporary events not yet supported!" << std::endl;
+		COUT << "creation of temporary events not yet supported!" << std::endl;
 		//perhaps this can be done using ptr_list_inserter, but I don't know how to use it
 			
 		//create a size=1 event list

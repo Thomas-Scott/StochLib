@@ -67,7 +67,7 @@ double StringCalculator::calculateString(std::string equation)
     else if( equation.at(index) == ')' ){
       while( (error_catcher = popOperator(operator_stack, operand_stack)) ){
 	if( error_catcher == BADRESULT ){
-	  std::cerr << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
+	  CERR << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
 	  return BADRESULT;
 	}
       }
@@ -88,7 +88,7 @@ double StringCalculator::calculateString(std::string equation)
       while( operator_stack.top() != '#' ){
 	error_catcher = popOperator(operator_stack, operand_stack);
 	if( error_catcher == BADRESULT ){
-	  std::cerr << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
+	  CERR << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
 	  return BADRESULT;
 	}
       }
@@ -97,7 +97,7 @@ double StringCalculator::calculateString(std::string equation)
       while( (operator_stack.top() == 'e') || operator_stack.top() == 'x' || operator_stack.top() == '^' || operator_stack.top() == 'm' || operator_stack.top() == 'n' ){
 	error_catcher = popOperator(operator_stack, operand_stack);
 	if( error_catcher == BADRESULT ){
-	  std::cerr << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
+	  CERR << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
 	  return BADRESULT;
 	}
       }
@@ -107,7 +107,7 @@ double StringCalculator::calculateString(std::string equation)
       while( (operator_stack.top() == 'e') || (operator_stack.top() == 'x') || (operator_stack.top() == '^') || operator_stack.top() == 'm' || operator_stack.top() == 'n' || (operator_stack.top() == '*') || (operator_stack.top() == '/') || operator_stack.top() == '%'){
 	error_catcher = popOperator(operator_stack, operand_stack);
 	if( error_catcher == BADRESULT ){
-	  std::cerr << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
+	  CERR << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
 	  return BADRESULT;
 	}
       }             
@@ -117,21 +117,21 @@ double StringCalculator::calculateString(std::string equation)
       while( operator_stack.top() != '#' ){
 	error_catcher = popOperator(operator_stack, operand_stack);
 	if( error_catcher == BADRESULT ){
-	  std::cerr << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
+	  CERR << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
 	  return BADRESULT;
 	}
       }
       operator_stack.push(equation.at(index));
     }
     else{
-      std::cerr << "StochKit ERROR (StringCalculator::calculateString): character " + equation.substr(index, 1) + " in equation \"" + equation + "\" not recognized\n";
+      CERR << "StochKit ERROR (StringCalculator::calculateString): character " + equation.substr(index, 1) + " in equation \"" + equation + "\" not recognized\n";
       return BADRESULT;
     }
   }
   
   while(popOperator(operator_stack, operand_stack) == 1);
   if(!operator_stack.empty()){
-    std::cerr << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
+    CERR << "StochKit ERROR (StringCalculator::calculateString): while calculating equation " + equation + "\n";
     return BADRESULT;
   }
   
@@ -143,7 +143,7 @@ int StringCalculator::popOperator(std::stack<char>& operator_stack, std::stack<d
   char cur_operator;
   double first_operand, second_operand, result;
   if(operator_stack.empty()){
-    std::cerr << "StochKit ERROR (StringCalculator::popOperator): operator stack is empty, please check your equation" << std::endl;
+    CERR << "StochKit ERROR (StringCalculator::popOperator): operator stack is empty, please check your equation" << std::endl;
     return BADRESULT;
   }
   cur_operator = operator_stack.top();
@@ -153,7 +153,7 @@ int StringCalculator::popOperator(std::stack<char>& operator_stack, std::stack<d
   }
   else if(cur_operator == 'x'){
     if(operand_stack.empty()){
-      std::cerr << "StochKit ERROR (StringCalculator::popOperator): operand stack is empty, please check your equation" << std::endl;
+      CERR << "StochKit ERROR (StringCalculator::popOperator): operand stack is empty, please check your equation" << std::endl;
       return BADRESULT;
     }
     result = exp(operand_stack.top());
@@ -163,13 +163,13 @@ int StringCalculator::popOperator(std::stack<char>& operator_stack, std::stack<d
   }
   else{
     if(operand_stack.empty()){
-      std::cerr << "StochKit ERROR (StringCalculator::popOperator): operand stack is empty, please check your equation" << std::endl;
+      CERR << "StochKit ERROR (StringCalculator::popOperator): operand stack is empty, please check your equation" << std::endl;
       return BADRESULT;
     }
     second_operand = operand_stack.top();
     operand_stack.pop();
     if(operand_stack.empty()){
-      std::cerr << "StochKit ERROR (StringCalculator::popOperator): operand stack is empty, please check your equation" << std::endl;
+      CERR << "StochKit ERROR (StringCalculator::popOperator): operand stack is empty, please check your equation" << std::endl;
       return BADRESULT;
     }
     first_operand = operand_stack.top();
@@ -197,7 +197,7 @@ double StringCalculator::calculate(char cur_operator, double first_operand, doub
       return (first_operand / second_operand);
     }
     else{
-      std::cerr << "StochKit ERROR (StringCalculator::calculate): denominator is 0!\n";
+      CERR << "StochKit ERROR (StringCalculator::calculate): denominator is 0!\n";
       return BADRESULT;
     }
   case '%':
@@ -211,7 +211,7 @@ double StringCalculator::calculate(char cur_operator, double first_operand, doub
   case 'n':
     return std::min(first_operand, second_operand);
   default:
-    std::cerr << "StochKit ERROR (StringCalculator::calculate): unrecognized operator, this should never happen!\n";
+    CERR << "StochKit ERROR (StringCalculator::calculate): unrecognized operator, this should never happen!\n";
     return BADRESULT;
   }
 }

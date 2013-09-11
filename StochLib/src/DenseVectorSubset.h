@@ -5,6 +5,7 @@
 #ifndef _DENSE_VECTOR_SUBSET_H_
 #define _DENSE_VECTOR_SUBSET_H_
 
+#include "StdOutputHandler.h"
 #include <vector>
 #include <fstream>
 
@@ -19,7 +20,7 @@ namespace StochLib
 		std::ofstream outfile;
 		outfile.open(filename.c_str(),std::ios::out | std::ios::app);
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (DenseVectorSubset::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (DenseVectorSubset::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 		outfile << keepAll <<"\n";
@@ -35,16 +36,16 @@ namespace StochLib
 
 	void serialize(std::ofstream& outfile) {
 		if (!outfile) {
-			std::cerr << "StochKit ERROR (DenseVectorSubset::serialize): Unable to open output file. Terminating.\n";
+			CERR << "StochKit ERROR (DenseVectorSubset::serialize): Unable to open output file. Terminating.\n";
 			exit(1);
 		}
 		outfile << keepAll <<"\n";
-//		std::cout << "just wrote keepAll="<<keepAll<<" in DenseVectorSubset::serialize...\n";
+//		COUT << "just wrote keepAll="<<keepAll<<" in DenseVectorSubset::serialize...\n";
 //		if (keepAll) {
-//			std::cout << "that is, keepAll is true...\n";
+//			COUT << "that is, keepAll is true...\n";
 //		}
 //		else {
-//			std::cout << "that is, keepAll is false...\n";
+//			COUT << "that is, keepAll is false...\n";
 //		}
 		
 		if (!keepAll) {
@@ -58,19 +59,19 @@ namespace StochLib
 
 	void unserialize(std::ifstream& fin) {
 		if (!fin) {
-			std::cerr << "StochKit ERROR (DenseVectorSubset::unserialize): Unable to open file.\n";
+			CERR << "StochKit ERROR (DenseVectorSubset::unserialize): Unable to open file.\n";
 			exit(1);
 		}
 		bool inputBool;
 		fin >> inputBool;
-//		std::cout << "in DenseVectorSubset, inputBool (keepAll) is "<<inputBool<<"\n";
+//		COUT << "in DenseVectorSubset, inputBool (keepAll) is "<<inputBool<<"\n";
 		if (!inputBool) {
 			//keepAll is false, so we need to read in the subsetIndices
 			std::size_t inputSize_t;
 			fin >> inputSize_t;
-			std::cout << "StochKit ERROR (DenseVectorSubset::unserialize): --species option not implemented in this beta version. Terminating.\n";
-//			std::cout << "in DenseVectorSubset, inputSize_t is "<<inputSize_t << "\n";
-//			std::cout << "would read in line of subsetIndices here, but not implemented. terminating.\n";
+			COUT << "StochKit ERROR (DenseVectorSubset::unserialize): --species option not implemented in this beta version. Terminating.\n";
+//			COUT << "in DenseVectorSubset, inputSize_t is "<<inputSize_t << "\n";
+//			COUT << "would read in line of subsetIndices here, but not implemented. terminating.\n";
 			exit(1);
 		}
 	}

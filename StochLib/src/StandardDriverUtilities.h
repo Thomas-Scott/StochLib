@@ -5,7 +5,8 @@
 #ifndef _STANDARD_DRIVER_UTILITIES_H_
 #define _STANDARD_DRIVER_UTILITIES_H_
 
-#include <iostream>
+#include <StdOutputHandler.h>
+
 #include <stdio.h>
 #include <vector>
 #include <string.h>
@@ -33,8 +34,6 @@
 #include <sys/stat.h>
 #endif
 
-
-#include <Rcpp.h>
 
 namespace StochLib
 {

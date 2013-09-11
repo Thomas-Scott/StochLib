@@ -39,7 +39,7 @@ namespace StochLib
 		if(mean==0)
 		{
 			lambda=std::numeric_limits<double>::max();
-			std::cout<<"0 mean is given to the exponential random number generator"<<"\n";
+			COUT<<"0 mean is given to the exponential random number generator"<<"\n";
 		}
 		else if(mean>=std::numeric_limits<double>::max())
 		{
