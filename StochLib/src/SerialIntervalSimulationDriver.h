@@ -4,6 +4,8 @@
 #ifndef _SERIAL_INTERVAL_SIMULATION_DRIVER_H_
 #define _SERIAL_INTERVAL_SIMULATION_DRIVER_H_
 
+#include <Rcpp.h>
+
 #include "Input_mass_action.h"
 #include "CommandLineInterface.h"
 #include "StandardDriverTypes.h"
@@ -128,9 +130,7 @@ public:
   void callSimulate(_solverType& solver) {
     std::size_t realizations=commandLine.getRealizations();
     double simulationTime=commandLine.getSimulationTime();
-    
     std::size_t intervals=commandLine.getIntervals();
-    
     //set output options
     output.setOutputTimes(IntervalOutput<populationVectorType>::createUniformOutputTimes(0.0,simulationTime,intervals));
     output.setKeepStats(commandLine.getKeepStats());
@@ -138,10 +138,14 @@ public:
     output.setKeepHistograms(commandLine.getKeepHistograms());
     output.setHistogramBins(commandLine.getHistogramBins());
 
+
+
+    Rcpp::Rcout << commandLine.getSpeciesSubset().size() << std::endl;
+
     if (commandLine.getSpeciesSubset().size()!=0) {
       output.setSpeciesSubset(commandLine.getSpeciesSubset());
     }
-    
+
 #ifdef EVENTS
     typedef StandardEventHandler<StandardDriverTypes::populationType> eventsType;
     //unfortunately, we need to create another instance of model here
@@ -154,15 +158,13 @@ public:
 #else
 	modelFileName=const_cast<char*>(commandLine.getModelFileName().c_str());
 #endif
-
     Input_events_after_compile<populationVectorType, stoichiometryType, propensitiesType, dependencyGraphType, eventsType, _solverType> model(modelFileName);
-    
     eventsType eventsHandler=model.writeEvents(solver);
-    
     solver.template simulateEvents<outputType>(realizations, 0.0, simulationTime, output, eventsHandler);
 #else
     solver.template simulate<outputType>(realizations, 0.0, simulationTime, output);
 #endif
+  return;
   }
 
   void writeOutput() {
@@ -170,7 +172,7 @@ public:
       StandardDriverUtilities::createOutputDirs(commandLine,false);
     }
 
-    if (commandLine.getKeepStats()) {     
+    if (commandLine.getKeepStats()) {      
       output.stats.writeMeansToFile(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/"+commandLine.getMeansFileName());
       output.stats.writeVariancesToFile(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/"+commandLine.getVariancesFileName());
       output.stats.writeSimulationInfoFile(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/"+commandLine.getStatsInfoFileName());

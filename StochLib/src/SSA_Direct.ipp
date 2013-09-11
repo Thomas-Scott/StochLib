@@ -366,13 +366,13 @@ simulate(std::size_t realizations, double startTime, double endTime, IntervalOut
 
 	if (doValidate) {
 		if (!validate(startTime,endTime)) {
-			std::cerr << "StochKit ERROR (SSA_Direct::simulate): validate() failed, simulation aborted\n";
+			std::cerr << "StochKit ERROR (SSA_Direct::simulate): validate() failed, simulation aborted"<<std::endl;
 			exit(1);
 		}		
 	}
 
 	if (!output.initialize(realizations,startTime,endTime,initialPopulation)) {
-		std::cerr << "StochKit ERROR (SSA_Direct::simulate): initialization of output object failed, simulation aborted\n";
+		std::cerr << "StochKit ERROR (SSA_Direct::simulate): initialization of output object failed, simulation aborted"<<std::endl;
 		exit(1);
 	}
 	

@@ -4,24 +4,9 @@
 
 using namespace StochLib;
 
-
-void StochLib::ssaDirectSerial(){
-	std::ofstream out;
-	out.open("~/counting.txt");
-	#pragma omp parallel num_threads(8)
-	{
-		#pragma omp for
-		for(int i =0;i<1000;i++){
-			out<<i<<std::endl;
-		}
-	}
-	out.close();
-	return;
-}
-
 #if defined(_OPENMP)
-void StochLib::parallelSSADirectSerial(){
-	ssaDirectSerial();
+void StochLib::parallelSSADirectSerial(std::string s){
+	ssa_direct_serial(s);
 	return;
 }
 #endif //_OPENMP_

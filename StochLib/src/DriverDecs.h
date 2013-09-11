@@ -1,5 +1,4 @@
 #include "StochLib.h"
-#include <string>
 
 #ifndef __DRIVER_DECS__
 #define __DRIVER_DECS__
@@ -8,7 +7,7 @@ using namespace StochLib;
 #if defined(_OPENMP)
 //[[Rcpp::Export]]
 void _parallel_ssaDirectSerial(std::string str){
-	
+	parallelSSADirectSerial(str);
 }
 #endif //_OPENMP 
 

@@ -1,7 +1,7 @@
 /*
  *	Boost Replacement functions
  */
-
+#include <Rcpp.h>
 #include "CommandLineInterface.h"
 
  namespace StochLib{ 
@@ -150,7 +150,7 @@ std::vector<std::string> CommandLineInterface::getCmdOptionList(char ** begin, c
     std::vector<std::string> list;
     bool last=false;
     while(!last && itr != end){
-             if (itr != end && ++itr != end){
+            if (itr != end && ++itr != end){
                     tmp = *itr;
 
                     if (tmp[0] == '-') {
@@ -158,7 +158,9 @@ std::vector<std::string> CommandLineInterface::getCmdOptionList(char ** begin, c
                     } else {
                             list.push_back(tmp);
                     }
+            	Rcpp::Rcout << "species:" << tmp <<std::endl;
             }
+            
     }
     return list;
 }
@@ -196,6 +198,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    	std::string name(modelName);
 	    	modelFileName=name;
 	    }
+	    Rcpp::Rcout << "Model:" << modelFileName <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-t")){
     		char * time = getCmdOption(av,av+ac,"-t");
@@ -207,25 +210,38 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    	simulationTime=t;
 	    }
 
+	    Rcpp::Rcout << "simulationTime:" << simulationTime <<std::endl;
+
 	    if(cmdOptionExists(av, av+ac, "-r")){
     		char * r = getCmdOption(av,av+ac,"-r");
     		std::istringstream iss(r);
     		iss >>realizations;
+    		iss.str(std::string());
 	    } else if (cmdOptionExists(av,av+ac,"--realizations")){
 	    	char * r = getCmdOption(av,av+ac,"--realizations");
 	    	std::istringstream iss(r);
     		iss >>realizations;
+    		iss.str(std::string());
 	    }
+
+	    Rcpp::Rcout << "realizations:" << realizations <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-i")){
     		char * tmp = getCmdOption(av,av+ac,"-i");
     		std::istringstream iss(tmp);
     		iss >>intervals;
+    		iss.str(std::string());
 	    } else if (cmdOptionExists(av,av+ac,"--intervals")){
 	    	char * tmp = getCmdOption(av,av+ac,"--intervals");
 	    	std::istringstream iss(tmp);
     		iss >>intervals;
+	    	iss.str(std::string());
+	    } else {
+	    	intervals = 0;
 	    }
+
+
+	    Rcpp::Rcout << "Intervals:" << intervals <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-f") || cmdOptionExists(av,av+ac,"--force")){
 	    	force = true;
@@ -241,6 +257,48 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    	char * tmp = getCmdOption(av,av+ac,"--processes");
 	    	std::istringstream iss(tmp);
     		iss >>processes;
+	    } else {
+	    	processes = 0;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--epsilon")){
+    		char * ep = getCmdOption(av,av+ac,"--epsilon");
+	    	double e = atof(ep);
+	    	epsilon = e;
+	    } else {
+	    	epsilon = 0.03;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--bins")){
+    		char * b = getCmdOption(av,av+ac,"--bins");
+	    	double bins = atof(b);
+	    	histogramBins = bins;
+	    } else {
+	    	histogramBins = 32;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--ssa-steps")){
+    		char * s = getCmdOption(av,av+ac,"--ssa-steps");
+	    	double steps = atof(s);
+	    	SSASteps = steps;
+	    } else {
+	    	SSASteps = 100;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--trajectories-offset")){
+    		char * t = getCmdOption(av,av+ac,"--trajectories-offset");
+	    	double offset = atof(t);
+	    	trajectoriesOffset = offset;
+	    } else {
+	    	trajectoriesOffset = 0;
+	    }
+
+	    if(cmdOptionExists(av, av+ac, "--threshold")){
+    		char * thresh = getCmdOption(av,av+ac,"--threshold");
+	    	double t = atof(thresh);
+	    	threshold = t;
+	    } else {
+	    	threshold = 10;
 	    }
 
 	    if(cmdOptionExists(av, av+ac, "--seed")){
@@ -301,8 +359,44 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    if(cmdOptionExists(av,av+ac,"--out-dir")){
 	    	char * output = getCmdOption(av,av+ac,"--out-dir");
     		std::string out(output);
-    		outputDir = out;
+    		outputDir = "/Users/scotthom15/"+out;
+	    } else {
+	    	outputDir = "/Users/scotthom15/output";
 	    }
+	    Rcpp::Rcout << outputDir <<std::endl;
+
+	    if(cmdOptionExists(av,av+ac,"--stats-dir")){
+	    	char * s = getCmdOption(av,av+ac,"--stats-dir");
+    		std::string stats(s);
+    		statsDir = stats;
+	    } else {
+	    	statsDir = "stats";
+	    }
+
+	    if(cmdOptionExists(av,av+ac,"--means-file")){
+	    	char * m = getCmdOption(av,av+ac,"--means-file");
+    		std::string means(m);
+    		meansFileName = means;
+	    } else {
+	    	meansFileName = "means.txt";
+	    }
+
+	    if(cmdOptionExists(av,av+ac,"--variances-file")){
+	    	char * v = getCmdOption(av,av+ac,"--variances-file");
+    		std::string vars(v);
+    		variancesFileName = vars;
+	    } else {
+	    	variancesFileName = "variances.txt";
+	    }
+
+	    if(cmdOptionExists(av,av+ac,"--stats-info-file")){
+	    	char * s = getCmdOption(av,av+ac,"--stats-info-file");
+    		std::string vars(s);
+    		statsInfoFileName = s;
+	    } else {
+	    	statsInfoFileName = ".stats-info.txt";
+	    }
+
 
 	    if(cmdOptionExists(av, av+ac, "--no-recompile")){
     		recompile = false;
@@ -319,9 +413,9 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 
 
 		if(cmdOptionExists(av, av+ac, "--use-existing-output-dirs")){
-    		useExistingOutputDirs = false;
+    		useExistingOutputDirs = true;
 	    } else {
-	    	useExistingOutputDirs = true;
+	    	useExistingOutputDirs = false;
 	    }	    
 	    char* modelFile;
 		modelFile=const_cast<char*>(modelFileName.c_str());
@@ -329,7 +423,9 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 		ModelTag model_tag = input_model_tag.writeModelTag();
 		std::vector<std::string> modelSpeciesList=model_tag.SpeciesList;
 
+		Rcpp::Rcout << "Checking species list size." << std::endl;
 		if (species.size()!=0) {//we need to create a species subset vector and set it in output object
+
 			//loop over command line species list
 			//if it's an index (a number), store it in the list of species indexes
 			//if it's a species id (species name), look up it's index in the modelSpeciesList
@@ -350,14 +446,18 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 						speciesSubset.push_back(index);
 					}
 					else {
-						std::cout << "StochKit ERROR (CommandLineInterface::parse): species index \""<<index<<"\" larger than number of species (Note: indices start at 0, so largest index is "<<modelSpeciesList.size()-1<<")\n";
+						std::cout << "StochKit ERROR (CommandLineInterface::parse): species index \""<<index<<"\" larger than number of species (Note: indices start at 0, so largest index is "<<modelSpeciesList.size()-1<<")"<<std::endl;
 						exit(1);
 					}
 				}
 			}
 
 		}
+		
 		//create vector of species names
+
+		Rcpp::Rcout << modelSpeciesList[0] << std::endl;
+		Rcpp::Rcout << modelSpeciesList[1] << std::endl;
 		if (speciesSubset.size()==0) {//if keeping all species, use species label vector from model_tag
 			speciesNames=modelSpeciesList;
 		}
@@ -365,7 +465,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 			DenseVectorSubset<std::vector<std::string> > labelSubset(speciesSubset);
 			speciesNames=labelSubset.getSubset(modelSpeciesList);
 		}
-
+		/*
 		#ifdef WIN32
 			//find the model file path and add quote for window version
 			//for "-m"
@@ -387,7 +487,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 			if(index!=std::string::npos)
 				cmdArgs.replace(index, serchingString.size(), replaceString); 
 		#endif
-
+		*/
     }
 
 

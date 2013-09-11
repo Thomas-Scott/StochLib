@@ -18,6 +18,24 @@
 #endif
 #include "StandardDriverTypes.h"
 
+
+#ifdef WIN32
+#include <windows.h>
+#include <direct.h>
+#include <conio.h>
+#define GetCurrentDir _getcwd
+#else 
+
+#define GetCurrentDir getcwd
+#include <cstdio>
+#include <ftw.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
+
+
+#include <Rcpp.h>
+
 namespace StochLib
 {
 	class StandardDriverUtilities
@@ -35,6 +53,12 @@ namespace StochLib
 		static std::string size_t2string(std::size_t number);
 
 	private:
+		static bool dirExists(const std::string& dir);
+		static bool createDir(const std::string& dir);
+		static bool dirIsDir(const std::string& dir);
+		static bool deleteDir(const std::string& dir);
+		static int __posixDeleteFunction(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
+		
 
 	};
 }

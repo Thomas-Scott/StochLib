@@ -2,67 +2,134 @@
 
 */
 #include "StandardDriverUtilities.h"
-#ifdef WIN32
-#include <windows.h>
-#include <direct.h>
-#define GetCurrentDir _getcwd
-#define unlink _unlink
-#else 
-#include <unistd.h>
-#define GetCurrentDir getcwd
-#include <sys/stat.h>
-#include <cstdio>
-#endif
 
 namespace StochLib
 {
-	void StandardDriverUtilities::createOutputDirs(CommandLineInterface& commandLine, bool parallel, std::size_t threads)
-	{  
+	bool StandardDriverUtilities::dirIsDir(const std::string& outputDir) {
+		#ifdef WIN32
+		DWORD fileAtt = GetFileAttributesA(filePath);
+		if(fileAtt == INVALID_FILE_ATTRIBUTES) 
+			throw GetLastError();
+		return ((fileAtt & FILE_ATTRIBUTE_DIRECTORY) == 0);
+		#else
+		struct stat sb;
+  		if (stat(outputDir.c_str(), &sb) == 0){
+			return S_ISDIR(sb.st_mode);
+		}
+		#endif
+	}
+
+	bool StandardDriverUtilities::dirExists(const std::string& outputDir) {
+		#ifdef WIN32
+		DWORD ftyp = GetFileAttributesA(outputDir.c_str());
+		if (ftyp == INVALID_FILE_ATTRIBUTES) return false; 
+		if (ftyp & FILE_ATTRIBUTE_DIRECTORY) return true;
+  		return false;
+  		#else
+  		struct stat sb;
+
+  		if (stat(outputDir.c_str(), &sb) == 1 && S_ISDIR(sb.st_mode)){
+			return true;
+		} else {
+			return false;
+		}
+  		#endif
+	}
+
+	int StandardDriverUtilities::__posixDeleteFunction(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf){
+		int e = remove(fpath);
+		if (e){
+			perror(fpath);
+		} 
+		return e;
+
+	}
+
+	bool StandardDriverUtilities::deleteDir(const std::string& dir){
+		#ifdef WIN32
+	    HANDLE          hFile;                       // Handle to directory
+	    std::string     strFilePath;                 // Filepath
+	    std::string     strPattern;                  // Pattern
+	    WIN32_FIND_DATA FileInformation;             // File information
+
+
+	    strPattern = dir + "\\*.*";
+	    hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation);
+	    if(hFile != INVALID_HANDLE_VALUE) {
+	        do {
+	            if(FileInformation.cFileName[0] != '.') {
+	                strFilePath.erase();
+	                strFilePath = dir + "\\" + FileInformation.cFileName;
+	                if(FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+	                    // Delete subdirectory
+	                    bool iRC = deleteDir(strFilePath);
+	                    if(iRC) {
+	                        return iRC;
+	                    }
+	                } else {
+	                // Set file attributes
+	                    if(::SetFileAttributes(strFilePath.c_str(),FILE_ATTRIBUTE_NORMAL) == FALSE) {
+	                    return ::GetLastError();
+	                }
+	                // Delete file
+	                if(::DeleteFile(strFilePath.c_str()) == FALSE) {
+	                    return ::GetLastError();
+	                }
+	            }
+	        }
+	        } while(::FindNextFile(hFile, &FileInformation) == TRUE);
+	        // Close file handle
+	        ::FindClose(hFile);
+	        DWORD dwError = ::GetLastError();
+	        if(dwError != ERROR_NO_MORE_FILES) {
+	            return dwError;
+	        } else {
+	            if(::SetFileAttributes(dir.c_str(),FILE_ATTRIBUTE_NORMAL) == FALSE) {
+	            return false;
+	        }
+	            if(::RemoveDirectory(dir.c_str()) == FALSE) {
+	                return false;
+	            }
+	        }
+	    }
+		return true;
+		#else
+		int success=nftw(dir.c_str(), __posixDeleteFunction, 64, FTW_DEPTH | FTW_PHYS);
+		if (success==0){
+			return true;
+		} else {
+			return false;
+		}
+		#endif
+	}
+
+	bool StandardDriverUtilities::createDir(const std::string& dir) {
+		Rcpp::Rcout << "Creating: "<<dir<<std::endl;
+		#ifdef WIN32
+		CreateDirectory(dir,NULL);
+  		#else
+		mkdir(dir.c_str(),0755);
+  		#endif
+  		return true;
+	}
+
+	void StandardDriverUtilities::createOutputDirs(CommandLineInterface& commandLine, bool parallel, std::size_t threads) {  
 
 		std::string outputDir=commandLine.getOutputDir();
-
 		try {
-			bool e;
-			#ifdef WIN32
-			e = CreateDirectory(outputDir.c_str(), NULL);
-			#else
-			struct stat sb;
-			if (stat(outputDir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)){
-				e = true;
-			}
-			#endif 
-			if (e) {
+			if (dirExists(outputDir)) {
 				if (!commandLine.getForce()) {
 					std::cout << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): output directory \""<<outputDir<<"\" already exists.\n";
 					std::cout << "Delete existing directory, use --out-dir to specify a unique directory name, or run with --force to overwrite.\n";
 					std::cout << "Simulation terminated.\n";
 					exit(1);
-				}
-				else {
+				} else {
 					//delete existing directory
-					if (e) {
+					if (dirIsDir(outputDir)) {
 						//could do some checks here to ensure they're not deleting a StochKit directory such as "src", "libs", "models", etc.
 						//currently, that is the risk one takes in using --force
-
-						#ifdef WIN32
-							WCHAR szDir[MAX_PATH+1];  // +1 for the double null terminate
-						    SHFILEOPSTRUCTW fos = {0};
-
-						    StringCchCopy(szDir, MAX_PATH, outputDir.c_str());
-						    int len = lstrlenW(szDir);
-						    szDir[len+1] = 0; // double null terminate for SHFileOperation
-
-						    // delete the folder and everything inside
-						    fos.wFunc = FO_DELETE;
-						    fos.pFrom = szDir;
-						    fos.fFlags = FOF_NO_UI;
-						    SHFileOperation( &fos );
-						#else 
-						    unlink(outputDir.c_str());
-						#endif
-					}
-					//abort if it exists but is not a directory
-					else {
+						deleteDir(outputDir);
+					} else {
 						std::cerr << "StochKit ERROR (StandardDriverUtilities::createOutputDirs): output directory \""<<outputDir<<"\" exists but is not a directory.\n";
 						std::cerr << "Delete existing file or use --out-dir to specify a unique directory name.\n";
 						std::cerr << "Simulation terminated.\n";
@@ -70,57 +137,54 @@ namespace StochLib
 					}
 				}
 			}
-			
+			Rcpp::Rcout << "Here."<<std::endl;
+			createDir(outputDir);
 #ifdef WIN32
-			CreateDirectory(outputDir,NULL);
 			if (commandLine.getKeepStats()) {
-				CreateDirectory(outputDir+"\\"+commandLine.getStatsDir(), NULL);
-				//boost::filesystem::create_directory(outputDir+"\\"+commandLine.getStatsDir());
+				createDir(outputDir+"\\"+commandLine.getStatsDir());
 				if (parallel) {
-					CreateDirectory(outputDir+"\\"+commandLine.getStatsDir()+"\\.parallel", NULL);
-					//boost::filesystem::create_directory(outputDir+"\\"+commandLine.getStatsDir()+"\\.parallel");
+					createDir(outputDir+"\\"+commandLine.getStatsDir()+"\\.parallel");
 				}
 			}
 			if (commandLine.getKeepTrajectories()) {
-				CreateDirectory(outputDir+"\\"+commandLine.getTrajectoriesDir(),NULL);
+				createDir(outputDir+"\\"+commandLine.getTrajectoriesDir());
 			}
 			if (commandLine.getKeepHistograms()) {
-				CreateDirectory(outputDir+"\\"+commandLine.getHistogramsDir(),NULL);
+				createDir(outputDir+"\\"+commandLine.getHistogramsDir());
 				if (parallel) {
-					CreateDirectory(outputDir+"\\"+commandLine.getHistogramsDir()+"\\.parallel",NULL);	
+					createDir(outputDir+"\\"+commandLine.getHistogramsDir()+"\\.parallel");	
 					for (std::size_t i=0; i!=threads; ++i) {
 						std::string threadNumStr=StandardDriverUtilities::size_t2string(i);
-						CreateDirectory(outputDir+"\\"+commandLine.getHistogramsDir()+"\\.parallel\\thread"+threadNumStr,NULL);	
+						createDir(outputDir+"\\"+commandLine.getHistogramsDir()+"\\.parallel\\thread"+threadNumStr);	
 					}
 				}
 
 			}
 			//create a hidden directory for StochKit data (e.g. a file that lists the solver used, the parameters, maybe even a copy of the model file
-			CreateDirectory(outputDir+"\\.StochKit",NULL);      
+			createDir(outputDir+"\\.StochKit");      
 #else
-			mkdir(outputDir.c_str(), 0777);
 			if (commandLine.getKeepStats()) {
-				mkdir((outputDir+"/"+commandLine.getStatsDir()).c_str(),0777);
+				createDir(outputDir+"/"+commandLine.getStatsDir());
 				if (parallel) {
-					mkdir((outputDir+"/"+commandLine.getStatsDir()+"/.parallel").c_str(),0777);
+					createDir(outputDir+"/"+commandLine.getStatsDir()+"/.parallel");
 				}
 			}
 			if (commandLine.getKeepTrajectories()) {
-				mkdir((outputDir+"/"+commandLine.getTrajectoriesDir()).c_str(),0777);
+				createDir(outputDir+"/"+commandLine.getTrajectoriesDir());
 			}
 			if (commandLine.getKeepHistograms()) {
-				mkdir((outputDir+"/"+commandLine.getHistogramsDir()).c_str(),0777);
+				createDir(outputDir+"/"+commandLine.getHistogramsDir());
 				if (parallel) {
-					mkdir((outputDir+"/"+commandLine.getHistogramsDir()+"/.parallel").c_str(),0777);	
+					createDir(outputDir+"/"+commandLine.getHistogramsDir()+"/.parallel");	
 					for (std::size_t i=0; i!=threads; ++i) {
 						std::string threadNumStr=StandardDriverUtilities::size_t2string(i);
-						mkdir((outputDir+"/"+commandLine.getHistogramsDir()+"/.parallel/thread"+threadNumStr).c_str(),0777);	
+						createDir(outputDir+"/"+commandLine.getHistogramsDir()+"/.parallel/thread"+threadNumStr);	
 					}
 				}
 
 			}
 			//create a hidden directory for StochKit data (e.g. a file that lists the solver used, the parameters, maybe even a copy of the model file
-			mkdir((outputDir+"/.StochKit").c_str(),0777);
+			createDir(outputDir+"/.StochKit");
 #endif
 		}
 		catch (...) {
@@ -134,10 +198,10 @@ namespace StochLib
 		std::string generatedCodeDir=current_path.parent_path().string()+"\\generatedCode";
 		if (commandLine.getRecompile()) {
 			try {
-				if (CreateDirectory(generatedCodeDir.c_str(), NULL)) {
+				if (dirExists(generatedCodeDir) {
 					//delete existing directory
-					if (CreateDirectory(generatedCodeDir.c_str(), NULL)) {
-						unlink(generatedCodeDir);
+					if (dirIsDir(generatedCodeDir {
+						deleteDir(generatedCodeDir);
 					}
 					//abort if it exists but is not a directory
 					else {
@@ -146,7 +210,7 @@ namespace StochLib
 						exit(1);
 					}
 				}
-				CreateDirectory(generatedCodeDir,NULL);
+				createDir(generatedCodeDir);
 			}
 			catch (...) {
 				std::cerr << "StochKit ERROR (StandardDriverUtilities::compileMixed): error creating output directory.\n";
@@ -214,11 +278,10 @@ namespace StochLib
 	void StandardDriverUtilities::compileMixed(std::string executableName, const CommandLineInterface& commandLine, bool events) {
 		if (commandLine.getRecompile()) {
 			try {
-				struct stat sb;
-				if (stat(commandLine.getGeneratedCodeDir().c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) {
+				if (dirExists(commandLine.getGeneratedCodeDir())) {
 					//delete existing directory
-					if (stat(commandLine.getGeneratedCodeDir().c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) {
-						unlink(commandLine.getGeneratedCodeDir().c_str());
+					if (dirIsDir(commandLine.getGeneratedCodeDir())) {
+						deleteDir(commandLine.getGeneratedCodeDir());
 					}
 					//abort if it exists but is not a directory
 					else {
@@ -227,8 +290,8 @@ namespace StochLib
 						exit(1);
 					}
 				}
-				mkdir(commandLine.getGeneratedCodeDir().c_str(),0777);
-				mkdir((commandLine.getGeneratedCodeDir()+"/bin").c_str(),0777);
+				createDir(commandLine.getGeneratedCodeDir());
+				createDir(commandLine.getGeneratedCodeDir()+"/bin");
 			}
 			catch (...) {
 				std::cerr << "StochKit ERROR (StandardDriverUtilities::compileMixed): error creating output directory.\n";
