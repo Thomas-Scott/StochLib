@@ -51,11 +51,15 @@ namespace StochLib
 
 		static std::string size_t2string(std::size_t number);
 
-	private:
 		static bool dirExists(const std::string& dir);
+
 		static bool createDir(const std::string& dir);
+		
 		static bool dirIsDir(const std::string& dir);
+		
 		static bool deleteDir(const std::string& dir);
+
+	private:
 		static int __posixDeleteFunction(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
 		
 

@@ -183,7 +183,6 @@ public:
 
   //should add an option to print a column header (e.g. species names)
   void writeDataToFile(size_t realization, std::string filename, bool printTime=true, bool append=false, bool highPrecision=false) {
-    Rcpp::Rcout<<filename<<std::endl;
     //doesn't ensure that entire realization has been stored in data
     std::ofstream outfile;
 

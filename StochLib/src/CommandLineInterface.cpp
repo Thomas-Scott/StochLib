@@ -197,7 +197,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    	std::string name(modelName);
 	    	modelFileName=name;
 	    }
-	    Rcpp::Rcout << "Model:" << modelFileName <<std::endl;
+	   	COUT << "Model: " << modelFileName <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-t")){
     		char * time = getCmdOption(av,av+ac,"-t");
@@ -221,7 +221,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
     		iss.str(std::string());
 	    }
 
-	    Rcpp::Rcout << "Realizations:" << realizations <<std::endl;
+	    COUT << "Realizations:" << realizations <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-i")){
     		char * tmp = getCmdOption(av,av+ac,"-i");
@@ -236,8 +236,6 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    } else {
 	    	intervals = 0;
 	    }
-
-	    Rcpp::Rcout << "Intervals:" << intervals <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-f") || cmdOptionExists(av,av+ac,"--force")){
 	    	force = true;
@@ -343,8 +341,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    } else {
 	    	outputDir = "/Users/scotthom15/output";
 	    }
-	    Rcpp::Rcout << outputDir <<std::endl;
-
+	    
 	    if(cmdOptionExists(av,av+ac,"--stats-dir")){
 	    	char * s = getCmdOption(av,av+ac,"--stats-dir");
     		std::string stats(s);
@@ -436,7 +433,6 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 		ModelTag model_tag = input_model_tag.writeModelTag();
 		std::vector<std::string> modelSpeciesList=model_tag.SpeciesList;
 
-		Rcpp::Rcout << "Checking species list size." << std::endl;
 		if (species.size()!=0) {//we need to create a species subset vector and set it in output object
 
 			//loop over command line species list
@@ -469,8 +465,6 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 		
 		//create vector of species names
 
-		Rcpp::Rcout << modelSpeciesList[0] << std::endl;
-		Rcpp::Rcout << modelSpeciesList[1] << std::endl;
 		if (speciesSubset.size()==0) {//if keeping all species, use species label vector from model_tag
 			speciesNames=modelSpeciesList;
 		}

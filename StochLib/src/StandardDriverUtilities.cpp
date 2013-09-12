@@ -104,7 +104,7 @@ namespace StochLib
 	}
 
 	bool StandardDriverUtilities::createDir(const std::string& dir) {
-		Rcpp::Rcout << "Creating: "<<dir<<std::endl;
+		//Rcpp::Rcout << "Creating: "<<dir<<std::endl;
 		#ifdef WIN32
 		CreateDirectory(dir,NULL);
   		#else
