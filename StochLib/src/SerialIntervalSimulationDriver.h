@@ -43,6 +43,10 @@ public:
     output()
   {}
 
+  SerialIntervalSimulationDriver(CommandLineInterface cli):
+    output()
+  {}
+
   _solverType createMassActionSolver() {
     
     char* modelFileName;

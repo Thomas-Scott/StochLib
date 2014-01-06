@@ -1,26 +1,27 @@
 #include "StochLib.h"
 #include <cstdlib>
 #include <fstream>
+#include <string>
+
+
+#include "boost_headers.h"
+#include "StdOutputHandler.h"
+#include "StandardDriverTypes.h"
+#include "SerialIntervalSimulationDriver.h"
+#include "SSA_Direct.h"
+#include "ParallelIntervalSimulation.h"
+
 
 using namespace StochLib;
 
 #if defined(_OPENMP)
-void StochLib::parallelSSADirectSerial(std::string s){
-	ssa_direct_serial(s);
-	return;
+void StochLib::parallelSSADirectSerial(std::string str){
+  typedef SSA_Direct<StandardDriverTypes::populationType,
+    StandardDriverTypes::stoichiometryType, 
+    StandardDriverTypes::propensitiesType,
+    StandardDriverTypes::graphType> solverType;
+  ParallelIntervalSimulation driver(str);
+  
+	
 }
 #endif //_OPENMP_
-
-void StochLib::count(){
-	std::ofstream out;
-	out.open("counting.txt");
-	#pragma omp parallel num_threads(8)
-	{
-		#pragma omp for
-		for(int i =0;i<1000;i++){
-			out<<i<<std::endl;
-		}
-	}
-	out.close();
-	return;
-}

@@ -1,3 +1,4 @@
+
 /*
  *  ssa_direct_serial.cpp
  *  

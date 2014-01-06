@@ -496,15 +496,11 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 		#endif
 		*/
     }
-
-
-
+    
 	CommandLineInterface::CommandLineInterface(std::string str){
 		int ac;
 		char ** command = parseString(str,ac);
 		parse_command_line(ac,command);
-		
-
 	}
 }
 
