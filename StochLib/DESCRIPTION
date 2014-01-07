@@ -1,11 +1,11 @@
 Package: StochLib
 Type: Package
-Title: What the package does (short line)
+Title: StochKit is a stochastic modeling library based on the standalone application of the same name.
 Version: 0.5
 Date: 2013-06-17
 Author: Who wrote it
 Maintainer: Thomas Scott <scottt@stolaf.edu>
-Description: More about what it does (maybe more than one line)
+Description: StochKit is a stochastic modeling library based on the standalone application of the same name.
 License: What Licence is it under ?
 Depends: methods, Rcpp (>= 0.10.3)
 LinkingTo: Rcpp

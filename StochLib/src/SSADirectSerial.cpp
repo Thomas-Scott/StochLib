@@ -21,7 +21,7 @@ void StochLib::parallelSSADirectSerial(std::string str){
     StandardDriverTypes::propensitiesType,
     StandardDriverTypes::graphType> solverType;
   ParallelIntervalSimulation driver(str);
-  
-	
+  driver.run();
+  driver.mergeOutput();
 }
 #endif //_OPENMP_

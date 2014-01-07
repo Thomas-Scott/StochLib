@@ -44,7 +44,7 @@ class ParallelIntervalSimulation
 public:
   ParallelIntervalSimulation(std::string);
 
-  void run(std::string executableName);
+  void run();
 
   std::size_t assignment(std::size_t totalRealizationss, std::size_t threadid);
 

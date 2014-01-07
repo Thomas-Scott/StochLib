@@ -20,7 +20,7 @@ ParallelIntervalSimulation::ParallelIntervalSimulation(std::string str):commandL
 		warnIfLargeOutput();
 }
 
-void ParallelIntervalSimulation::run(std::string str){
+void ParallelIntervalSimulation::run(){
 	boost::uniform_int<> distribution(1, RAND_MAX) ;
 	boost::variate_generator<boost::mt19937, boost::uniform_int<> > seedOfNewThread(engine, distribution);
 
@@ -39,7 +39,7 @@ void ParallelIntervalSimulation::run(std::string str){
 
 	std::size_t numRuns=commandLine.getRealizations();
 	COUT << "running simulation...";
-	////COUT.flush();
+	COUT.flush();
 
 #ifdef WIN32
 	LARGE_INTEGER begin, end, freq;
@@ -55,7 +55,7 @@ void ParallelIntervalSimulation::run(std::string str){
 	int newseed;
 
 	std::size_t assignmentCounter=0;
-	#pragma omp parallel num_threads(threadct) private(newseed)
+	#pragma omp parallel num_threads(threadct) private(newseed,command,subRealizations,numRuns)
 	{
 		newseed = seedOfNewThread();
 		seedString=StandardDriverUtilities::size_t2string(newseed);
@@ -72,7 +72,7 @@ void ParallelIntervalSimulation::run(std::string str){
 			threadNumString=StandardDriverUtilities::size_t2string(omp_get_thread_num());
 			subRealizationsString=StandardDriverUtilities::size_t2string(subRealizations);
 
-			command = commandLine.getCmdArgs()+" --use-existing-output-dirs --histograms-dir histograms/.parallel/thread"+threadNumString+" --stats-dir stats/.parallel --means-file means"+threadNumString+".txt --variances-file variances"+threadNumString+".txt --stats-info-file .stats-info-"+threadNumString+".txt";
+			command = "./ssa " + commandLine.getCmdArgs()+" --use-existing-output-dirs --histograms-dir histograms/.parallel/thread"+threadNumString+" --stats-dir stats/.parallel --means-file means"+threadNumString+".txt --variances-file variances"+threadNumString+".txt --stats-info-file .stats-info-"+threadNumString+".txt";
 
 			//append seed to command
 			if (!commandLine.getUseSeed()) {
@@ -112,6 +112,8 @@ void ParallelIntervalSimulation::run(std::string str){
 			// #else
 			// std::string commandStr="echo 'THREAD "+threadNumString+":"+command+"' >> "+commandLine.getOutputDir()+"/.StochKit/command-log.txt"; 
 			// #endif
+			//COUT << command <<"\n";
+			//COUT.flush();
 			ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(command);
 		}
 	}
@@ -128,11 +130,12 @@ void ParallelIntervalSimulation::run(std::string str){
 		endTime=timer.tv_sec+(timer.tv_usec/1000000.0);
 		elapsedTime=endTime-startTime;
 	#endif
-		std::cout << "finished (simulation time approx. " << elapsedTime << " second";
+		COUT << "finished (simulation time approx. " << elapsedTime << " second";
 		if (elapsedTime!=1) {
-			std::cout << "s";
+			COUT << "s";
 		}
-		std::cout << ")"<<std::endl;
+		COUT << ")\n";
+		COUT.flush();
 	}
 	
 	inline std::size_t ParallelIntervalSimulation::assignment(std::size_t totalRealizations, std::size_t threadid) {
@@ -142,6 +145,8 @@ void ParallelIntervalSimulation::run(std::string str){
 		}else{
 			return totalRealizations;
 		}
+		std::size_t sub = totalRealizations/(threadct)
+
 	}
 
 
@@ -236,7 +241,7 @@ void ParallelIntervalSimulation::warnIfLargeOutput() {
 		if (numFiles>10000 || dataSize>10000000) {
 			COUT << "StochKit WARNING: simulation will generate large amounts of data (approx. "<<dataSize/1000000<<"MB in "<< numFiles <<" files)...initializing...\n";
 		}
-		//COUT.flush();
+		COUT.flush();
 	}
 
 void ParallelIntervalSimulation::mergeOutput() {
@@ -336,7 +341,7 @@ void ParallelIntervalSimulation::mergeOutput() {
 	//merge stats output	
 	if (commandLine.getKeepStats()) {
 		COUT << "creating statistics output files...\n";
-		//COUT.flush();
+		COUT.flush();
 
 		typedef StatsOutput<StandardDriverTypes::populationType> StatsOutputType;
 
@@ -396,7 +401,7 @@ void ParallelIntervalSimulation::mergeOutput() {
 	//merge histograms here
 	if (commandLine.getKeepHistograms()) {
 		COUT << "creating histogram output files...\n";
-		//COUT.flush();
+		COUT.flush();
 
 		//read in number of species from info file
 #ifdef WIN32

@@ -197,7 +197,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	    	std::string name(modelName);
 	    	modelFileName=name;
 	    }
-	   	COUT << "Model: " << modelFileName <<std::endl;
+	   	//COUT << "Model: " << modelFileName <<std::endl;
 
 	    if(cmdOptionExists(av, av+ac, "-t")){
     		char * time = getCmdOption(av,av+ac,"-t");
@@ -221,7 +221,9 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
     		iss.str(std::string());
 	    }
 
-	    COUT << "Realizations:" << realizations <<std::endl;
+	    //COUT << "Realizations:" << realizations <<"\n";
+	    //COUT.flush();
+
 
 	    if(cmdOptionExists(av, av+ac, "-i")){
     		char * tmp = getCmdOption(av,av+ac,"-i");
@@ -499,6 +501,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
     
 	CommandLineInterface::CommandLineInterface(std::string str){
 		int ac;
+		cmdArgs = str;
 		char ** command = parseString(str,ac);
 		parse_command_line(ac,command);
 	}
