@@ -1,12 +1,11 @@
 #include "ParallelIntervalSimulation.h"
 
-namespace StochLib{
-
-
-ParallelIntervalSimulation::ParallelIntervalSimulation(std::string str)
-	{
-		commandLine = CommandLineInterface(str);
+namespace StochLib
+{
+ParallelIntervalSimulation::ParallelIntervalSimulation(std::string str):commandLine(str) {
 		threadct = commandLine.getProcesses();
+		masterProc = 0;
+		engine = boost::mt19937((boost::uint32_t) std::time(0));
 		if (threadct == 0){
 			COUT << "StochKit MESSAGE (ParallelIntervalSimulation()): unable to detect number of processors.  Simulation will run on one processor.\n";
 			threadct=1;
@@ -14,11 +13,12 @@ ParallelIntervalSimulation::ParallelIntervalSimulation(std::string str)
 		if (threadct == 1){
 			COUT << "StochKit MESSAGE (ParallelIntervalSimulation()): model will run in serial. Please define a number of processes to take advantage of parallelism.\n";
 		}
-		if (commandLine.getUseSeed()){
-			seed = commandLine.getSeed();
+		if (commandLine.getUseSeed()) {
+			boost::mt19937 newEngine(commandLine.getSeed());
+			engine=newEngine;
 		}
 		warnIfLargeOutput();
-	}
+}
 
 void ParallelIntervalSimulation::run(std::string str){
 	boost::uniform_int<> distribution(1, RAND_MAX) ;
@@ -41,39 +41,38 @@ void ParallelIntervalSimulation::run(std::string str){
 	COUT << "running simulation...";
 	////COUT.flush();
 
-
-	#ifdef WIN32
+#ifdef WIN32
 	LARGE_INTEGER begin, end, freq;
 	QueryPerformanceFrequency(&freq);
 	QueryPerformanceCounter(&begin);
-	#else
+#else
 	timeval timer;
 	double startTime, endTime;
 	gettimeofday(&timer,NULL);
 	startTime=timer.tv_sec+(timer.tv_usec/1000000.0);
-	#endif
+#endif
 
 	int newseed;
 
 	std::size_t assignmentCounter=0;
-	#pragma omp parallel num_threads(threadct)
+	#pragma omp parallel num_threads(threadct) private(newseed)
 	{
 		newseed = seedOfNewThread();
 		seedString=StandardDriverUtilities::size_t2string(newseed);
 
-		subRealizations = assignment(numRuns, i);
+		subRealizations = assignment(numRuns, omp_get_thread_num());
 		numRuns -= subRealizations;
 
 		processorRealizationAssignments.push_back(subRealizations);
-		if (i==masterProc && processorRealizationAssignments[i]==0) {
+		if (omp_get_thread_num()==masterProc && processorRealizationAssignments[omp_get_thread_num()]==0) {
 			++masterProc;
 		}
 
 		if (subRealizations>0) {
-			threadNumString=StandardDriverUtilities::size_t2string(i);
+			threadNumString=StandardDriverUtilities::size_t2string(omp_get_thread_num());
 			subRealizationsString=StandardDriverUtilities::size_t2string(subRealizations);
 
-			command = s + commandLine.getCmdArgs()+" --use-existing-output-dirs --histograms-dir histograms/.parallel/thread"+threadNumString+" --stats-dir stats/.parallel --means-file means"+threadNumString+".txt --variances-file variances"+threadNumString+".txt --stats-info-file .stats-info-"+threadNumString+".txt";
+			command = commandLine.getCmdArgs()+" --use-existing-output-dirs --histograms-dir histograms/.parallel/thread"+threadNumString+" --stats-dir stats/.parallel --means-file means"+threadNumString+".txt --variances-file variances"+threadNumString+".txt --stats-info-file .stats-info-"+threadNumString+".txt";
 
 			//append seed to command
 			if (!commandLine.getUseSeed()) {
@@ -95,7 +94,7 @@ void ParallelIntervalSimulation::run(std::string str){
 			}
 
 			//if keeping histograms, thread 0 needs to write a histogram info file
-			if (commandLine.getKeepHistograms() && i==masterProc) {
+			if (commandLine.getKeepHistograms() && omp_get_thread_num()==masterProc) {
 				command+=" --histograms-info-file ../.histogram-info.txt ";//should create it in the histograms/.parallel directory
 			}
 
@@ -129,17 +128,13 @@ void ParallelIntervalSimulation::run(std::string str){
 		endTime=timer.tv_sec+(timer.tv_usec/1000000.0);
 		elapsedTime=endTime-startTime;
 	#endif
-		COUT << "finished (simulation time approx. " << elapsedTime << " second";
+		std::cout << "finished (simulation time approx. " << elapsedTime << " second";
 		if (elapsedTime!=1) {
-			COUT << "s";
+			std::cout << "s";
 		}
-		COUT << ")"<<std::endl;
+		std::cout << ")"<<std::endl;
 	}
-
-	inline void ParallelIntervalSimulation::executable(std::string command) {
-		system(command.c_str());
-	}
-
+	
 	inline std::size_t ParallelIntervalSimulation::assignment(std::size_t totalRealizations, std::size_t threadid) {
 		if(threadid<(threadct-1)){
 			std::size_t subRealizations = totalRealizations/(threadct-threadid);
@@ -148,9 +143,9 @@ void ParallelIntervalSimulation::run(std::string str){
 			return totalRealizations;
 		}
 	}
-}
 
-void ParrallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(std:string str){
+
+void ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(std::string str){
 	  typedef SSA_Direct<StandardDriverTypes::populationType,
     StandardDriverTypes::stoichiometryType, 
     StandardDriverTypes::propensitiesType,
@@ -392,9 +387,9 @@ void ParallelIntervalSimulation::mergeOutput() {
 
 		//after merging stats, remove stats/parallel directory
 #ifdef WIN32
-		deleteDir(OutputDir+"\\"+commandLine.getStatsDir()+"\\.parallel");
+		StandardDriverUtilities::deleteDir(OutputDir+"\\"+commandLine.getStatsDir()+"\\.parallel");
 #else
-		deleteDir(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/.parallel");
+		StandardDriverUtilities::deleteDir(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/.parallel");
 #endif
 	}
 
@@ -458,7 +453,7 @@ void ParallelIntervalSimulation::mergeOutput() {
 #endif
 			}
 		}
-		deleteDir(commandLine.getOutputDir()+"/"+commandLine.getHistogramsDir()+"/.parallel");
+		StandardDriverUtilities::deleteDir(commandLine.getOutputDir()+"/"+commandLine.getHistogramsDir()+"/.parallel");
 	}
 	COUT << "done!\n";
 }

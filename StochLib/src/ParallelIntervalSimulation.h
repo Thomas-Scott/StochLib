@@ -8,8 +8,8 @@
 #include "CommandLineInterface.h"
 #include "StandardDriverTypes.h"
 #include "StandardDriverUtilities.h"
-#include "Input_mixed_before_compile.h"
-#include "Input_events_before_compile.h"
+//#include "Input_mixed_before_compile.h"
+//#include "Input_events_before_compile.h"
 #include "IntervalOutput.h"
 #include "StatsOutput.h"
 #include "HistogramSingle.h"
@@ -19,15 +19,21 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include <sys/time.h>
 #include <vector>
+#include "StdOutputHandler.h"
+#include <string>
+#include "StandardDriverTypes.h"
+#include "SerialIntervalSimulationDriver.h"
+#include "SSA_Direct.h"
 
+#include <omp.h>
 #ifdef WIN32
 #include <windows.h>
 #include <fstream>
 #endif
 
-#include <string>
-#include "StdOutputHandler.h"
+
 
 namespace StochLib
 {
@@ -49,7 +55,7 @@ public:
   static std::string modifyCmdArgsRealizations(std::string commandLineArguments, std::string subRealizations);
   static std::string modifyCmdArgsSeed(std::string commandLineArguments, std::string newSeed);
 private:
-  void _parallel_ssaDirectSerial_subdriver(std:string str);
+  void _parallel_ssaDirectSerial_subdriver(std::string str);
 
 protected:
   CommandLineInterface commandLine;

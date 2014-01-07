@@ -17,10 +17,5 @@ void _ssaDirectSerial(std::string str){
 	return;
 }
 
-//[[Rcpp::Export]]
-void _count(){
-	count();
-	return;
-}
 
 #endif //__DRIVER_DECS__
