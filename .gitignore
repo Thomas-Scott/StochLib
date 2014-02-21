@@ -1,5 +1,6 @@
 .DS_STORE
 *.o
+*.a
 *.pyc
 *.os
 *.so
