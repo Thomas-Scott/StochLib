@@ -1,0 +1,1 @@
+Taking the popular StochKit application and building it as a module for python and a package for R while maintaining a single codebase apart from the wrapper executables. Requires cmake-2.8 to use the automated build process but if that's not your style you're more than welcome to move the files and write a makefile manually.

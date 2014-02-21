@@ -1,0 +1,7 @@
+#!/bin/sh
+
+RCPP_PKG_LIBS=`${R_HOME}/bin/Rscript -e "Rcpp:::LdFlags()"`
+
+
+sed -e "s|@RCPP_PKG_LIBS@|${RCPP_PKG_LIBS}|" \
+	src\Makevars.in > src\Makevars.win

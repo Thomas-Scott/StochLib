@@ -7,6 +7,5 @@
 BOOST_PYTHON_MODULE(PyStochLib) {
     using namespace boost::python;
     def("ssaDirectSerial", _ssaDirectSerial);
-    def("parallelSSADirectSerial", _parallel_ssaDirectSerial);
-    def("count", _count);
+    def("parallelSSADirectSerial", parallelSSADirectSerial);
 } 
