@@ -10,3 +10,4 @@
 *.rds
 output/*
 build/*
+Makefile
