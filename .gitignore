@@ -11,3 +11,8 @@
 output/*
 build/*
 Makefile
+CMakeFiles
+PyStochLib/cmake_install.cmake
+StochLib/cmake_install.cmake
+StochLib/CMakeFiles
+PyStochLib/CMakeFiles
