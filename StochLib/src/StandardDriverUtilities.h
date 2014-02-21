@@ -59,6 +59,8 @@ namespace StochLib
 		
 		static bool deleteDir(const std::string& dir);
 
+		static std::size_t assignment(std::size_t totalRealizations, std::size_t threadct);
+
 	private:
 		static int __posixDeleteFunction(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
 		

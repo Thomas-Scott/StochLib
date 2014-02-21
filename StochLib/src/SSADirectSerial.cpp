@@ -22,6 +22,8 @@ void StochLib::parallelSSADirectSerial(std::string str){
     StandardDriverTypes::graphType> solverType;
   ParallelIntervalSimulation driver(str);
   driver.run();
+  COUT << "Done.\n Merging output...\n";
   driver.mergeOutput();
+  //driver.mergeSerialOutput();
 }
 #endif //_OPENMP_

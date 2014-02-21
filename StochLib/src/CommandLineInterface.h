@@ -4,7 +4,7 @@
 #ifndef _COMMAND_LINE_INTERFACE_H_
 #define _COMMAND_LINE_INTERFACE_H_
 
-
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -24,6 +24,7 @@ namespace StochLib
  public:
   
   CommandLineInterface(std::string str);
+  CommandLineInterface(std::string str, CommandLineInterface cli);
 
   std::string getModelFileName() const;
 
@@ -54,6 +55,8 @@ namespace StochLib
 
   bool getForce() const;
 
+  int getThreadID() const {return threadId;}
+
   std::string getStatsDir() const;
   std::string getMeansFileName() const;
   std::string getVariancesFileName() const;
@@ -72,7 +75,10 @@ namespace StochLib
 
   std::string getCmdArgs() const;
 
+  bool fileExists(std::string fileName) const;
+
  protected:
+  void preloaded_parse_command_line(int ac, char* av[],CommandLineInterface cli);
   void parse_command_line(int ac, char* av[]);
   char **  parseString(std::string str,int &ac);
   std::vector<std::string> splitString( const std::string& str);
@@ -82,14 +88,7 @@ namespace StochLib
 
 
  private:
-  //boost::program_options::variables_map vm;
-
-  /*boost::program_options::options_description visible;
-  boost::program_options::options_description hidden;
-  boost::program_options::options_description combined;
-  */
- // std::map<std::string, boost::program_options::variable_value> vm;
-
+  int threadId;
   std::string modelFileName;
   double simulationTime;
   std::size_t realizations;

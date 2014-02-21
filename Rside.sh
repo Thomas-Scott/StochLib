@@ -1,5 +1,5 @@
 R CMD INSTALL StochLib
-R -f "StochLib Test.R"
+##R -f "StochLib Test.R"
 R -f "parallelTest.R"
 echo "NOTES:"
 echo "~/ contains output folder. Will update later."

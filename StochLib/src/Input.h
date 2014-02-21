@@ -33,6 +33,7 @@
 #include "CustomPropensity.h"
 #include "CustomSimplePropensity.h"
 #include "CustomPropensitySet.h"
+#include <omp.h>
 
 namespace StochLib
 {

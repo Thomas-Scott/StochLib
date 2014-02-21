@@ -66,6 +66,11 @@ return species;
 }
 */
 
+bool CommandLineInterface::fileExists(std::string filename) const {
+  std::ifstream ifile(filename.c_str());
+  return ifile;
+}
+
 std::size_t CommandLineInterface::getProcesses() const {
 	return processes;
 }
@@ -132,11 +137,11 @@ std::string CommandLineInterface::getCmdArgs() const {
 
 
 char* CommandLineInterface::getCmdOption(char ** begin, char ** end, const std::string & option){
-    char ** itr = std::find(begin, end, option);
-    if (itr != end && ++itr != end){
-        return *itr;
-    }
-    return 0;
+	char ** itr = std::find(begin, end, option);
+	if (itr != end && ++itr != end){
+		return *itr;
+	}
+	return 0;
 }
 
 bool CommandLineInterface::cmdOptionExists(char** begin, char** end, const std::string& option){
@@ -144,279 +149,204 @@ bool CommandLineInterface::cmdOptionExists(char** begin, char** end, const std::
 }
 
 std::vector<std::string> CommandLineInterface::getCmdOptionList(char ** begin, char ** end, const std::string & option){
-    char ** itr = std::find(begin, end, option);
-    std::string tmp;
-    std::vector<std::string> list;
-    bool last=false;
-    while(!last && itr != end){
-            if (itr != end && ++itr != end){
-                    tmp = *itr;
+	char ** itr = std::find(begin, end, option);
+	std::string tmp;
+	std::vector<std::string> list;
+	bool last=false;
+	while(!last && itr != end){
+			if (itr != end && ++itr != end){
+					tmp = *itr;
 
-                    if (tmp[0] == '-') {
-                            last=true;
-                    } else {
-                            list.push_back(tmp);
-                    }
-            	Rcpp::Rcout << "species:" << tmp <<std::endl;
-            }
-            
-    }
-    return list;
+					if (tmp[0] == '-') {
+							last=true;
+					} else {
+							list.push_back(tmp);
+					}
+				Rcpp::Rcout << "species:" << tmp <<std::endl;
+			}
+			
+	}
+	return list;
 }
 
 std::vector<std::string> CommandLineInterface::splitString( const std::string& str){
 	std::string buf; 
-    std::stringstream ss(str); 
-    std::vector<std::string> tokens;
-    while (ss >> buf)
-        tokens.push_back(buf);
-        return tokens;
+	std::stringstream ss(str); 
+	std::vector<std::string> tokens;
+	while (ss >> buf)
+		tokens.push_back(buf);
+		return tokens;
 }
 
 char ** CommandLineInterface::parseString(std::string str,int &ac){
-    	std::vector<std::string> vec =splitString(str);
-    	ac = vec.size();
-    	char ** arr = new char*[ac];
+		std::vector<std::string> vec =splitString(str);
+		ac = vec.size();
+		char ** arr = new char*[ac];
 		for(size_t i = 0; i < ac; i++){
-	    	arr[i] = new char[vec[i].size() + 1];
-	    	strcpy(arr[i], vec[i].c_str());
+			arr[i] = new char[vec[i].size() + 1];
+			strcpy(arr[i], vec[i].c_str());
 		}
 	return arr;
 }
+	void CommandLineInterface::preloaded_parse_command_line(int ac, char* av[],CommandLineInterface cli){
+		modelFileName = cli.getModelFileName();
+		simulationTime = cli.getSimulationTime();
+		if(cmdOptionExists(av, av+ac, "-r")){
+			char * r = getCmdOption(av,av+ac,"-r");
+			std::istringstream iss(r);
+			iss >>realizations;
+			iss.str(std::string());
+		} else if (cmdOptionExists(av,av+ac,"--realizations")){
+			char * r = getCmdOption(av,av+ac,"--realizations");
+			std::istringstream iss(r);
+			iss >>realizations;
+			iss.str(std::string());
+		}
+		intervals = cli.getIntervals();
+		force = cli.getForce();
+		processes = cli.getProcesses();
+		epsilon = cli.getEpsilon();
+		histogramBins = cli.getHistogramBins();
+		SSASteps = cli.getSSASteps();
 
 
-    void CommandLineInterface::parse_command_line(int ac, char* av[]){
+		if(cmdOptionExists(av, av+ac, "--trajectories-offset")){
+			char * t = getCmdOption(av,av+ac,"--trajectories-offset");
+			double offset = atof(t);
+			trajectoriesOffset = offset;
+		} else {
+			trajectoriesOffset = 0;
+		}
 
 
-    	if(cmdOptionExists(av, av+ac, "-m")){
-    		char * modelName = getCmdOption(av,av+ac,"-m");
-    		std::string name(modelName);
-    		modelFileName=name;
-	    } else if (cmdOptionExists(av,av+ac,"--model")){
-	    	char * modelName = getCmdOption(av,av+ac,"--model");
-	    	std::string name(modelName);
-	    	modelFileName=name;
-	    }
-	   	//COUT << "Model: " << modelFileName <<std::endl;
+		if(cmdOptionExists(av, av+ac, "--threshold")){
+			char * thresh = getCmdOption(av,av+ac,"--threshold");
+			double t = atof(thresh);
+			threshold = t;
+		} else {
+			threshold = 10;
+		}
 
-	    if(cmdOptionExists(av, av+ac, "-t")){
-    		char * time = getCmdOption(av,av+ac,"-t");
-    		double t = atof(time);
-    		simulationTime=t;
-	    } else if (cmdOptionExists(av,av+ac,"--time")){
-	    	char * time = getCmdOption(av,av+ac,"--time");
-	    	double t = atof(time);
-	    	simulationTime=t;
-	    }
+		if(cmdOptionExists(av, av+ac, "--seed")){
+			useSeed = true;
+		} else {
+			useSeed = false;
+		}
 
-	    if(cmdOptionExists(av, av+ac, "-r")){
-    		char * r = getCmdOption(av,av+ac,"-r");
-    		std::istringstream iss(r);
-    		iss >>realizations;
-    		iss.str(std::string());
-	    } else if (cmdOptionExists(av,av+ac,"--realizations")){
-	    	char * r = getCmdOption(av,av+ac,"--realizations");
-	    	std::istringstream iss(r);
-    		iss >>realizations;
-    		iss.str(std::string());
-	    }
+		if(cmdOptionExists(av, av+ac, "--keep-trajectories")){
+			keepTrajectories = true;
+		} else {
+			keepTrajectories = false;
+		}
 
-	    //COUT << "Realizations:" << realizations <<"\n";
-	    //COUT.flush();
+		if(cmdOptionExists(av, av+ac, "--keep-histograms")){
+			keepHistograms = true;
+		} else {
+			keepHistograms = false;
+		}
 
+		if(cmdOptionExists(av, av+ac, "--label")){
+			label = true;
+		} else {
+			label = false;
+		}
 
-	    if(cmdOptionExists(av, av+ac, "-i")){
-    		char * tmp = getCmdOption(av,av+ac,"-i");
-    		std::istringstream iss(tmp);
-    		iss >>intervals;
-    		iss.str(std::string());
-	    } else if (cmdOptionExists(av,av+ac,"--intervals")){
-	    	char * tmp = getCmdOption(av,av+ac,"--intervals");
-	    	std::istringstream iss(tmp);
-    		iss >>intervals;
-	    	iss.str(std::string());
-	    } else {
-	    	intervals = 0;
-	    }
+		if(cmdOptionExists(av, av+ac, "--no-stats")){
+			keepStats = false;
+		} else {
+			keepStats = true;
+		}
 
-	    if(cmdOptionExists(av, av+ac, "-f") || cmdOptionExists(av,av+ac,"--force")){
-	    	force = true;
-	    } else {
-	    	force = false;
-	    }
-
-	 	if(cmdOptionExists(av, av+ac, "-p")){
-    		char * tmp = getCmdOption(av,av+ac,"-p");
-    		std::istringstream iss(tmp);
-    		iss >>processes;
-	    } else if (cmdOptionExists(av,av+ac,"--processes")){
-	    	char * tmp = getCmdOption(av,av+ac,"--processes");
-	    	std::istringstream iss(tmp);
-    		iss >>processes;
-	    } else {
-	    	processes = 0;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--epsilon")){
-    		char * ep = getCmdOption(av,av+ac,"--epsilon");
-	    	double e = atof(ep);
-	    	epsilon = e;
-	    } else {
-	    	epsilon = 0.03;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--bins")){
-    		char * b = getCmdOption(av,av+ac,"--bins");
-	    	double bins = atof(b);
-	    	histogramBins = bins;
-	    } else {
-	    	histogramBins = 32;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--ssa-steps")){
-    		char * s = getCmdOption(av,av+ac,"--ssa-steps");
-	    	double steps = atof(s);
-	    	SSASteps = steps;
-	    } else {
-	    	SSASteps = 100;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--trajectories-offset")){
-    		char * t = getCmdOption(av,av+ac,"--trajectories-offset");
-	    	double offset = atof(t);
-	    	trajectoriesOffset = offset;
-	    } else {
-	    	trajectoriesOffset = 0;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--threshold")){
-    		char * thresh = getCmdOption(av,av+ac,"--threshold");
-	    	double t = atof(thresh);
-	    	threshold = t;
-	    } else {
-	    	threshold = 10;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--seed")){
-    		useSeed = true;
-	    } else {
-	    	useSeed = false;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--keep-trajectories")){
-    		keepTrajectories = true;
-	    } else {
-	    	keepTrajectories = false;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--keep-histograms")){
-    		keepHistograms = true;
-	    } else {
-	    	keepHistograms = false;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--label")){
-    		label = true;
-	    } else {
-	    	label = false;
-	    }
-
-	    if(cmdOptionExists(av, av+ac, "--no-stats")){
-    		keepStats = false;
-	    } else {
-	    	keepStats = true;
-	    }
-
-	    if (epsilon<=0.0 || epsilon>=1.0) {
-			COUT << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.  Run with --help for more info.\n";
+		if (epsilon<=0.0 || epsilon>=1.0) {
+			COUT << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.	Run with --help for more info.\n";
 			exit(1);
 		}
 
 		if(cmdOptionExists(av, av+ac, "--species")){
 			species = getCmdOptionList(av,av+ac,"--species");
-	    }
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--out-dir")){
-	    	char * output = getCmdOption(av,av+ac,"--out-dir");
-    		std::string out(output);
-    		outputDir = "/Users/scotthom15/"+out;
-	    } else {
-	    	outputDir = "/Users/scotthom15/output";
-	    }
-	    
-	    if(cmdOptionExists(av,av+ac,"--stats-dir")){
-	    	char * s = getCmdOption(av,av+ac,"--stats-dir");
-    		std::string stats(s);
-    		statsDir = stats;
-	    } else {
-	    	statsDir = "stats";
-	    }
+		if(cmdOptionExists(av,av+ac,"--out-dir")){
+			char * output = getCmdOption(av,av+ac,"--out-dir");
+			std::string out(output);
+			outputDir = "./"+out;
+		} else {
+			outputDir = "output";
+		}
+		
+		if(cmdOptionExists(av,av+ac,"--stats-dir")){
+			char * s = getCmdOption(av,av+ac,"--stats-dir");
+			std::string stats(s);
+			statsDir = stats;
+		} else {
+			statsDir = "stats";
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--means-file")){
-	    	char * m = getCmdOption(av,av+ac,"--means-file");
-    		std::string means(m);
-    		meansFileName = means;
-	    } else {
-	    	meansFileName = "means.txt";
-	    }
+		if(cmdOptionExists(av,av+ac,"--means-file")){
+			char * m = getCmdOption(av,av+ac,"--means-file");
+			std::string means(m);
+			meansFileName = means;
+		} else {
+			meansFileName = "means.txt";
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--variances-file")){
-	    	char * v = getCmdOption(av,av+ac,"--variances-file");
-    		std::string vars(v);
-    		variancesFileName = vars;
-	    } else {
-	    	variancesFileName = "variances.txt";
-	    }
+		if(cmdOptionExists(av,av+ac,"--variances-file")){
+			char * v = getCmdOption(av,av+ac,"--variances-file");
+			std::string vars(v);
+			variancesFileName = vars;
+		} else {
+			variancesFileName = "variances.txt";
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--stats-info-file")){
-	    	char * s = getCmdOption(av,av+ac,"--stats-info-file");
-    		std::string str(s);
-    		statsInfoFileName = str;
-	    } else {
-	    	statsInfoFileName = ".stats-info.txt";
-	    }
+		if(cmdOptionExists(av,av+ac,"--stats-info-file")){
+			char * s = getCmdOption(av,av+ac,"--stats-info-file");
+			std::string str(s);
+			statsInfoFileName = str;
+		} else {
+			statsInfoFileName = ".stats-info.txt";
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--trajectories-dir")){
-	    	char * s = getCmdOption(av,av+ac,"--trajectories-dir");
-    		std::string str(s);
-    		trajectoriesDir = str;
-	    } else {
-	    	trajectoriesDir = "trajectories";
-	    }
+		if(cmdOptionExists(av,av+ac,"--trajectories-dir")){
+			char * s = getCmdOption(av,av+ac,"--trajectories-dir");
+			std::string str(s);
+			trajectoriesDir = str;
+		} else {
+			trajectoriesDir = "trajectories";
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--trajectories-offset")){
-	    	char * s = getCmdOption(av,av+ac,"--trajectories-offset");
-    		double offset = atof(s);
-    		trajectoriesOffset = offset;
-	    } else {
-	    	trajectoriesOffset = 0;
-	    }
+		if(cmdOptionExists(av,av+ac,"--trajectories-offset")){
+			char * s = getCmdOption(av,av+ac,"--trajectories-offset");
+			double offset = atof(s);
+			trajectoriesOffset = offset;
+		} else {
+			trajectoriesOffset = 0;
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--histograms-dir")){
-	    	char * s = getCmdOption(av,av+ac,"--histograms-dir");
-    		std::string str(s);
-    		histogramsDir = str;
-	    } else {
-	    	histogramsDir = "histograms";
-	    }
+		if(cmdOptionExists(av,av+ac,"--histograms-dir")){
+			char * s = getCmdOption(av,av+ac,"--histograms-dir");
+			std::string str(s);
+			histogramsDir = str;
+		} else {
+			histogramsDir = "histograms";
+		}
 
-	    if(cmdOptionExists(av,av+ac,"--histograms-info-file")){
-	    	char * s = getCmdOption(av,av+ac,"--histograms-info-file");
-    		std::string str(s);
-    		histogramsInfoFileName = str;
-	    } else {
-	    	histogramsInfoFileName = "";
-	    }
+		if(cmdOptionExists(av,av+ac,"--histograms-info-file")){
+			char * s = getCmdOption(av,av+ac,"--histograms-info-file");
+			std::string str(s);
+			histogramsInfoFileName = str;
+		} else {
+			histogramsInfoFileName = "";
+		}
 
 
 
-	    if(cmdOptionExists(av, av+ac, "--no-recompile")){
-    		recompile = false;
-	    } else {
-	    	recompile = true;
-	    }
+		if(cmdOptionExists(av, av+ac, "--no-recompile")){
+			recompile = false;
+		} else {
+			recompile = true;
+		}
 
-	    /* TODO: port this for future mixed, events, and other support
+		/* TODO: port this for future mixed, events, and other support
 
 	std::string full_model_path=boost::filesystem::system_complete(modelFileName).string();
 	generatedCodeDir=full_model_path.substr(0,full_model_path.find_last_of("."))+"_generated_code";
@@ -425,11 +355,262 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 
 
 		if(cmdOptionExists(av, av+ac, "--use-existing-output-dirs")){
-    		useExistingOutputDirs = true;
-	    } else {
-	    	useExistingOutputDirs = false;
-	    }	    
-	    char* modelFile;
+			useExistingOutputDirs = true;
+		} else {
+			useExistingOutputDirs = false;
+		}
+
+		speciesNames = cli.getSpeciesNames();
+
+		return;
+	}
+
+
+	void CommandLineInterface::parse_command_line(int ac, char* av[]){
+
+
+		if(cmdOptionExists(av, av+ac, "-m")){
+			char * modelName = getCmdOption(av,av+ac,"-m");
+			std::string name(modelName);
+			modelFileName=name;
+		} else if (cmdOptionExists(av,av+ac,"--model")){
+			char * modelName = getCmdOption(av,av+ac,"--model");
+			std::string name(modelName);
+			modelFileName=name;
+		} // else throw error
+		 	//COUT << "Model: " << modelFileName <<std::endl;
+
+		if(cmdOptionExists(av, av+ac, "-t")){
+			char * time = getCmdOption(av,av+ac,"-t");
+			double t = atof(time);
+			simulationTime=t;
+		} else if (cmdOptionExists(av,av+ac,"--time")){
+			char * time = getCmdOption(av,av+ac,"--time");
+			double t = atof(time);
+			simulationTime=t;
+		}
+
+		if(cmdOptionExists(av, av+ac, "-r")){
+			char * r = getCmdOption(av,av+ac,"-r");
+			std::istringstream iss(r);
+			iss >>realizations;
+			iss.str(std::string());
+		} else if (cmdOptionExists(av,av+ac,"--realizations")){
+			char * r = getCmdOption(av,av+ac,"--realizations");
+			std::istringstream iss(r);
+			iss >>realizations;
+			iss.str(std::string());
+		}
+
+		//COUT << "Realizations:" << realizations <<"\n";
+		//COUT.flush();
+
+
+		if(cmdOptionExists(av, av+ac, "-i")){
+			char * tmp = getCmdOption(av,av+ac,"-i");
+			std::istringstream iss(tmp);
+			iss >>intervals;
+			iss.str(std::string());
+		} else if (cmdOptionExists(av,av+ac,"--intervals")){
+			char * tmp = getCmdOption(av,av+ac,"--intervals");
+			std::istringstream iss(tmp);
+			iss >>intervals;
+			iss.str(std::string());
+		} else {
+			intervals = 0;
+		}
+
+		if(cmdOptionExists(av, av+ac, "-f") || cmdOptionExists(av,av+ac,"--force")){
+			force = true;
+		} else {
+			force = false;
+		}
+
+	 	if(cmdOptionExists(av, av+ac, "-p")){
+			char * tmp = getCmdOption(av,av+ac,"-p");
+			std::istringstream iss(tmp);
+			iss >>processes;
+		} else if (cmdOptionExists(av,av+ac,"--processes")){
+			char * tmp = getCmdOption(av,av+ac,"--processes");
+			std::istringstream iss(tmp);
+			iss >>processes;
+		} else {
+			processes = 0;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--epsilon")){
+			char * ep = getCmdOption(av,av+ac,"--epsilon");
+			double e = atof(ep);
+			epsilon = e;
+		} else {
+			epsilon = 0.03;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--bins")){
+			char * b = getCmdOption(av,av+ac,"--bins");
+			double bins = atof(b);
+			histogramBins = bins;
+		} else {
+			histogramBins = 32;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--ssa-steps")){
+			char * s = getCmdOption(av,av+ac,"--ssa-steps");
+			double steps = atof(s);
+			SSASteps = steps;
+		} else {
+			SSASteps = 100;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--trajectories-offset")){
+			char * t = getCmdOption(av,av+ac,"--trajectories-offset");
+			double offset = atof(t);
+			trajectoriesOffset = offset;
+		} else {
+			trajectoriesOffset = 0;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--threshold")){
+			char * thresh = getCmdOption(av,av+ac,"--threshold");
+			double t = atof(thresh);
+			threshold = t;
+		} else {
+			threshold = 10;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--seed")){
+			useSeed = true;
+		} else {
+			useSeed = false;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--keep-trajectories")){
+			keepTrajectories = true;
+		} else {
+			keepTrajectories = false;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--keep-histograms")){
+			keepHistograms = true;
+		} else {
+			keepHistograms = false;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--label")){
+			label = true;
+		} else {
+			label = false;
+		}
+
+		if(cmdOptionExists(av, av+ac, "--no-stats")){
+			keepStats = false;
+		} else {
+			keepStats = true;
+		}
+
+		if (epsilon<=0.0 || epsilon>=1.0) {
+			COUT << "StochKit ERROR (CommandLineInterface::parse): invalid value for epsilon.	Run with --help for more info.\n";
+			exit(1);
+		}
+
+		if(cmdOptionExists(av, av+ac, "--species")){
+			species = getCmdOptionList(av,av+ac,"--species");
+		}
+
+		if(cmdOptionExists(av,av+ac,"--out-dir")){
+			char * output = getCmdOption(av,av+ac,"--out-dir");
+			std::string out(output);
+			outputDir = "./"+out;
+		} else {
+			outputDir = "output";
+		}
+		
+		if(cmdOptionExists(av,av+ac,"--stats-dir")){
+			char * s = getCmdOption(av,av+ac,"--stats-dir");
+			std::string stats(s);
+			statsDir = stats;
+		} else {
+			statsDir = "stats";
+		}
+
+		if(cmdOptionExists(av,av+ac,"--means-file")){
+			char * m = getCmdOption(av,av+ac,"--means-file");
+			std::string means(m);
+			meansFileName = means;
+		} else {
+			meansFileName = "means.txt";
+		}
+
+		if(cmdOptionExists(av,av+ac,"--variances-file")){
+			char * v = getCmdOption(av,av+ac,"--variances-file");
+			std::string vars(v);
+			variancesFileName = vars;
+		} else {
+			variancesFileName = "variances.txt";
+		}
+
+		if(cmdOptionExists(av,av+ac,"--stats-info-file")){
+			char * s = getCmdOption(av,av+ac,"--stats-info-file");
+			std::string str(s);
+			statsInfoFileName = str;
+		} else {
+			statsInfoFileName = ".stats-info.txt";
+		}
+
+		if(cmdOptionExists(av,av+ac,"--trajectories-dir")){
+			char * s = getCmdOption(av,av+ac,"--trajectories-dir");
+			std::string str(s);
+			trajectoriesDir = str;
+		} else {
+			trajectoriesDir = "trajectories";
+		}
+
+		if(cmdOptionExists(av,av+ac,"--trajectories-offset")){
+			char * s = getCmdOption(av,av+ac,"--trajectories-offset");
+			double offset = atof(s);
+			trajectoriesOffset = offset;
+		} else {
+			trajectoriesOffset = 0;
+		}
+
+		if(cmdOptionExists(av,av+ac,"--histograms-dir")){
+			char * s = getCmdOption(av,av+ac,"--histograms-dir");
+			std::string str(s);
+			histogramsDir = str;
+		} else {
+			histogramsDir = "histograms";
+		}
+
+		if(cmdOptionExists(av,av+ac,"--histograms-info-file")){
+			char * s = getCmdOption(av,av+ac,"--histograms-info-file");
+			std::string str(s);
+			histogramsInfoFileName = str;
+		} else {
+			histogramsInfoFileName = "";
+		}
+
+
+
+		if(cmdOptionExists(av, av+ac, "--no-recompile")){
+			recompile = false;
+		} else {
+			recompile = true;
+		}
+
+		/* TODO: port this for future mixed, events, and other support
+
+	std::string full_model_path=boost::filesystem::system_complete(modelFileName).string();
+	generatedCodeDir=full_model_path.substr(0,full_model_path.find_last_of("."))+"_generated_code";
+	
+		*/
+
+
+		if(cmdOptionExists(av, av+ac, "--use-existing-output-dirs")){
+			useExistingOutputDirs = true;
+		} else {
+			useExistingOutputDirs = false;
+		}		
+		char* modelFile;
 		modelFile=const_cast<char*>(modelFileName.c_str());
 		Input_tag<ModelTag> input_model_tag(modelFile);
 		ModelTag model_tag = input_model_tag.writeModelTag();
@@ -474,7 +655,7 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 			DenseVectorSubset<std::vector<std::string> > labelSubset(speciesSubset);
 			speciesNames=labelSubset.getSubset(modelSpeciesList);
 		}
-		/*
+		
 		#ifdef WIN32
 			//find the model file path and add quote for window version
 			//for "-m"
@@ -496,9 +677,15 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 			if(index!=std::string::npos)
 				cmdArgs.replace(index, serchingString.size(), replaceString); 
 		#endif
-		*/
-    }
-    
+	}
+
+	CommandLineInterface::CommandLineInterface(std::string str, CommandLineInterface cli){
+		int ac;
+		cmdArgs = str;
+		char ** command = parseString(str,ac);
+		preloaded_parse_command_line(ac,command,cli);
+	}
+	
 	CommandLineInterface::CommandLineInterface(std::string str){
 		int ac;
 		cmdArgs = str;
@@ -507,4 +694,4 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 	}
 }
 
-  
+	

@@ -110,6 +110,10 @@ namespace StochLib
   		return true;
 	}
 
+	std::size_t StandardDriverUtilities::assignment(std::size_t totalRealizations, std::size_t threadct) {
+		return totalRealizations/(threadct);
+	}
+
 	void StandardDriverUtilities::createOutputDirs(CommandLineInterface& commandLine, bool parallel, std::size_t threads) {  
 
 		std::string outputDir=commandLine.getOutputDir();

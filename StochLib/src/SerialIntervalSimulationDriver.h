@@ -23,6 +23,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
 
 namespace StochLib
 {
@@ -43,7 +46,8 @@ public:
     output()
   {}
 
-  SerialIntervalSimulationDriver(CommandLineInterface cli):
+  SerialIntervalSimulationDriver(std::string str,CommandLineInterface cli):
+    commandLine(str, cli),
     output()
   {}
 
@@ -171,19 +175,21 @@ public:
     if (!commandLine.getUseExistingOutputDirs()) {
       StandardDriverUtilities::createOutputDirs(commandLine,false);
     }
+    //COUT << "here.\n"; 
 
     if (commandLine.getKeepStats()) {      
       output.stats.writeMeansToFile(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/"+commandLine.getMeansFileName());
       output.stats.writeVariancesToFile(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/"+commandLine.getVariancesFileName());
       output.stats.writeSimulationInfoFile(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/"+commandLine.getStatsInfoFileName());
     }
+    //COUT << "here.\n";
     if (commandLine.getKeepTrajectories()) {
       std::size_t trajectoryNumber;
       std::string trajectoryNumberString;
       for (std::size_t i=0; i!=commandLine.getRealizations(); ++i) {
 	trajectoryNumber=i+commandLine.getTrajectoriesOffset();
 	trajectoryNumberString=StandardDriverUtilities::size_t2string(trajectoryNumber);
-
+    //COUT << "here.\n";
 	if (commandLine.getLabel()) {
 	  IntervalOutput<StandardDriverTypes::populationType>::writeLabelsToFile(commandLine.getOutputDir()+"/"+commandLine.getTrajectoriesDir()+"/trajectory"+trajectoryNumberString+".txt",commandLine.getSpeciesNames());
 	  output.trajectories.writeDataToFile(i,commandLine.getOutputDir()+"/"+commandLine.getTrajectoriesDir()+"/trajectory"+trajectoryNumberString+".txt",true,true);

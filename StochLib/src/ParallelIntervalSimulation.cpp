@@ -20,24 +20,46 @@ ParallelIntervalSimulation::ParallelIntervalSimulation(std::string str):commandL
 		warnIfLargeOutput();
 }
 
+std::string ParallelIntervalSimulation::setTempModelName(std::string command, std::string tempModelName){
+	//append a space at the beginning to avoid the condition where string starts with "--seed"
+	//this ensures we can find seed by looking for first occurrence of " --seed"
+	std::string tmpArgs=" "+command+" ";
+	//find first occurrence of " --seed"
+	std::size_t minus_minus_model=tmpArgs.find(" --model");
+	std::size_t minus_m=tmpArgs.find(" -m");
+
+	std::size_t cutStart;
+	std::size_t cutEnd;
+
+	if (minus_minus_model!=std::string::npos) {//found " --realizations"
+		cutStart=minus_minus_model;
+		cutEnd=tmpArgs.find(" -",cutStart+4);//will find next " -" after " --realizations"
+	}
+	else {
+		if (minus_m==std::string::npos) {
+			CERR  << "StochKit ERROR (ParallelIntervalSimulation::ModifyCmdArgsRealizations): could not find number of realizations in command line arguments\nSimulation terminated.\n";
+			exit(1);
+		}
+		cutStart=minus_m;
+		cutEnd=tmpArgs.find(" -",cutStart+4);//will find next " -" after " -r"
+	}
+
+	std::string modifiedCmdArgs=tmpArgs.substr(0,cutStart)+" --model "+tempModelName+tmpArgs.substr(cutEnd,tmpArgs.length()-cutEnd);
+	return modifiedCmdArgs;
+}
+
+
 void ParallelIntervalSimulation::run(){
+	processorRealizationAssignments.resize(threadct);
+	// vecPointer incase we need to iterate across assignment threads
+	std::size_t* vecPointer = &processorRealizationAssignments[0];
 	boost::uniform_int<> distribution(1, RAND_MAX) ;
 	boost::variate_generator<boost::mt19937, boost::uniform_int<> > seedOfNewThread(engine, distribution);
-
+	//parallel 
+	//
 
 	StandardDriverUtilities::createOutputDirs(commandLine,true,threadct);
 	COUT << "StochKit MESSAGE: created output directory \""+commandLine.getOutputDir()+"\"...\n";
-
-	//record full command in a log file
-	std::string command;
-	//need to convert size_t to strngs
-	std::string threadNumString;	
-	std::size_t subRealizations;
-	std::string subRealizationsString;
-	std::string seedString;
-	std::string assignmentCounterString;
-
-	std::size_t numRuns=commandLine.getRealizations();
 	COUT << "running simulation...";
 	COUT.flush();
 
@@ -51,114 +73,86 @@ void ParallelIntervalSimulation::run(){
 	gettimeofday(&timer,NULL);
 	startTime=timer.tv_sec+(timer.tv_usec/1000000.0);
 #endif
-
-	int newseed;
-
+	std::size_t numRuns=commandLine.getRealizations();
 	std::size_t assignmentCounter=0;
-	#pragma omp parallel num_threads(threadct) private(newseed,command,subRealizations,numRuns)
+	bool fileUnlocked=true;
+	#pragma omp parallel num_threads(threadct) shared(assignmentCounter,fileUnlocked)
 	{
-		newseed = seedOfNewThread();
-		seedString=StandardDriverUtilities::size_t2string(newseed);
-
-		subRealizations = assignment(numRuns, omp_get_thread_num());
-		numRuns -= subRealizations;
-
-		processorRealizationAssignments.push_back(subRealizations);
-		if (omp_get_thread_num()==masterProc && processorRealizationAssignments[omp_get_thread_num()]==0) {
-			++masterProc;
+		//std::string tempModelName;
+		#pragma omp critical
+		{
+		COUT << "\nThread: " << omp_get_thread_num() << " initializing...";
+		COUT.flush();
 		}
-
-		if (subRealizations>0) {
+		std::size_t subRealizations = StandardDriverUtilities::assignment(numRuns, threadct);
+		if (subRealizations>0) { 
+			//numRuns -= subRealizations;
+			std::string threadNumString;
+			std::string subRealizationsString;
+			std::string seedString;
+			std::string assignmentCounterString;
 			threadNumString=StandardDriverUtilities::size_t2string(omp_get_thread_num());
+			#pragma omp critical 
+			{
+				seedString=StandardDriverUtilities::size_t2string(seedOfNewThread());
+				vecPointer[omp_get_thread_num()] = subRealizations;
+				// COUT << "\nThread " << omp_get_thread_num() << " has " << vecPointer[omp_get_thread_num()];
+				// COUT.flush();
+			}
+			std::string parallelCommand;
+			parallelCommand="./ssa " + commandLine.getCmdArgs()+" --use-existing-output-dirs --histograms-dir histograms/.parallel/thread"+threadNumString+" --stats-dir stats/.parallel --means-file means"+threadNumString+".txt --variances-file variances"+threadNumString+".txt --stats-info-file .stats-info-"+threadNumString+".txt";
+
 			subRealizationsString=StandardDriverUtilities::size_t2string(subRealizations);
-
-			command = "./ssa " + commandLine.getCmdArgs()+" --use-existing-output-dirs --histograms-dir histograms/.parallel/thread"+threadNumString+" --stats-dir stats/.parallel --means-file means"+threadNumString+".txt --variances-file variances"+threadNumString+".txt --stats-info-file .stats-info-"+threadNumString+".txt";
-
-			//append seed to command
 			if (!commandLine.getUseSeed()) {
-				command+=" --seed "+seedString;
-			}
-			else {
+				parallelCommand+=" --seed "+seedString;
+			} else {
 				//seed already exists in the command line arguments, so we have to replace it with seedString
-				command=ParallelIntervalSimulation::modifyCmdArgsSeed(command,seedString);
+				parallelCommand=ParallelIntervalSimulation::modifyCmdArgsSeed(parallelCommand,seedString);
 			}
 
-			command=ParallelIntervalSimulation::modifyCmdArgsRealizations(command,subRealizationsString);
+			parallelCommand=ParallelIntervalSimulation::modifyCmdArgsRealizations(parallelCommand,subRealizationsString);
+			//parallelCommand=ParallelIntervalSimulation::setTempModelName(parallelCommand,tempModelName);
+			//parallelCommand=ParallelIntervalSimulation::setTempModelName(parallelCommand,commandLine.);
 
 			//if keeping trajectories, need to supply a trajectory offset
 			if (commandLine.getKeepTrajectories()) {
 				assignmentCounterString=StandardDriverUtilities::size_t2string(assignmentCounter);
-				command+=" --trajectories-offset "+assignmentCounterString;
+				parallelCommand+=" --trajectories-offset "+assignmentCounterString;
 				//increment assignmentCounter
+				#pragma omp atomic
 				assignmentCounter+=subRealizations;
 			}
 
 			//if keeping histograms, thread 0 needs to write a histogram info file
 			if (commandLine.getKeepHistograms() && omp_get_thread_num()==masterProc) {
-				command+=" --histograms-info-file ../.histogram-info.txt ";//should create it in the histograms/.parallel directory
+				parallelCommand+=" --histograms-info-file ../.histogram-info.txt ";	
 			}
 
-			//redirect messages from executable to log file
 			#ifdef WIN32
-			command+=" > \""+commandLine.getOutputDir()+"\\.StochKit\\thread-log"+threadNumString+".txt\"";
-			command="\""+command+"\" 2>&1";
+			parallelCommand+=" > \""+commandLine.getOutputDir()+"\\.StochKit\\thread-log"+threadNumString+".txt\"";
+			parallelCommand="\""+parallelCommand+"\" 2>&1";
 			#else
-			command+=" > "+commandLine.getOutputDir()+"/.StochKit/thread-log"+threadNumString+".txt 2>&1";
+			parallelCommand+=" > "+commandLine.getOutputDir()+"/.StochKit/thread-log"+threadNumString+".txt 2>&1";
 			#endif
+			#pragma omp barrier
+			if (omp_get_thread_num()==0){
+				COUT << "\nInitialization complete. Simulating...";
+			}
 
-			//sthreads.create_thread(boost::bind(&ParallelIntervalSimulation::executable, this, command));
-			// #ifdef WIN32
-			// std::string commandStr="\"echo 'THREAD "+threadNumString+":"+command+"' >> \""+commandLine.getOutputDir()+"/.StochKit/command-log.txt\"\"";  
-			// #else
-			// std::string commandStr="echo 'THREAD "+threadNumString+":"+command+"' >> "+commandLine.getOutputDir()+"/.StochKit/command-log.txt"; 
-			// #endif
-			//COUT << command <<"\n";
-			//COUT.flush();
-			ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(command);
+			ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(parallelCommand,commandLine);
 		}
 	}
+}
 
-	//wait for all threads to finish
-
-	//sthreads.join_all();
-	double elapsedTime;
-	#ifdef WIN32
-		QueryPerformanceCounter(&end);
-		elapsedTime=(double)(end.QuadPart-begin.QuadPart)/freq.QuadPart;
-	#else
-		gettimeofday(&timer,NULL);
-		endTime=timer.tv_sec+(timer.tv_usec/1000000.0);
-		elapsedTime=endTime-startTime;
-	#endif
-		COUT << "finished (simulation time approx. " << elapsedTime << " second";
-		if (elapsedTime!=1) {
-			COUT << "s";
-		}
-		COUT << ")\n";
-		COUT.flush();
-	}
-	
-	inline std::size_t ParallelIntervalSimulation::assignment(std::size_t totalRealizations, std::size_t threadid) {
-		if(threadid<(threadct-1)){
-			std::size_t subRealizations = totalRealizations/(threadct-threadid);
-			return subRealizations;
-		}else{
-			return totalRealizations;
-		}
-		std::size_t sub = totalRealizations/(threadct)
-
-	}
-
-
-void ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(std::string str){
+void ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(std::string str,StochLib::CommandLineInterface cli){
 	  typedef SSA_Direct<StandardDriverTypes::populationType,
     StandardDriverTypes::stoichiometryType, 
     StandardDriverTypes::propensitiesType,
     StandardDriverTypes::graphType> solverType;
-
-    SerialIntervalSimulationDriver<solverType> driver(str);
-
+    //COUT << str << "\n";
+    SerialIntervalSimulationDriver<solverType> driver(str,cli);
     solverType solver = driver.createMassActionSolver();
+   // COUT << "Thread " << cli.getThreadID() << " initialized. Running...";
     driver.callSimulate(solver);
     driver.writeOutput();
     return;
@@ -340,8 +334,8 @@ void ParallelIntervalSimulation::mergeOutput() {
 
 	//merge stats output	
 	if (commandLine.getKeepStats()) {
-		COUT << "creating statistics output files...\n";
-		COUT.flush();
+		//COUT << "creating statistics output files...\n";
+		//COUT.flush();
 
 		typedef StatsOutput<StandardDriverTypes::populationType> StatsOutputType;
 
@@ -353,7 +347,6 @@ void ParallelIntervalSimulation::mergeOutput() {
 		StatsOutputType master=StatsOutputType::createFromFiles(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/.parallel/means"+StandardDriverUtilities::size_t2string(masterProc)+".txt",commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/.parallel/variances"+StandardDriverUtilities::size_t2string(masterProc)+".txt",commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/.parallel/.stats-info-"+StandardDriverUtilities::size_t2string(masterProc)+".txt");
 #endif
 		StatsOutputType tmpOut;
-
 		//merge data from other processors onto the master
 		for (std::size_t i=masterProc+1; i<threadct; ++i) {
 			if (processorRealizationAssignments[i]>0) {
@@ -366,7 +359,6 @@ void ParallelIntervalSimulation::mergeOutput() {
 				master.merge(tmpOut);
 			}
 		}
-
 		if (commandLine.getLabel()) {
 #ifdef WIN32
 			IntervalOutput<StandardDriverTypes::populationType>::writeLabelsToFile(OutputDir+"\\"+commandLine.getStatsDir()+"\\means.txt",commandLine.getSpeciesNames());
@@ -397,7 +389,6 @@ void ParallelIntervalSimulation::mergeOutput() {
 		StandardDriverUtilities::deleteDir(commandLine.getOutputDir()+"/"+commandLine.getStatsDir()+"/.parallel");
 #endif
 	}
-
 	//merge histograms here
 	if (commandLine.getKeepHistograms()) {
 		COUT << "creating histogram output files...\n";

@@ -101,8 +101,9 @@ parseXmlFile(char *xmlFilename)
 
 	xmlFreeDoc(stochkitXml);
 
-	xmlCleanupParser();
-
+	
+	//xmlCleanupParser();
+	
 	return true;
 }
 
