@@ -1,7 +1,0 @@
-
-LIBXMLINC_PATH=/usr/local/Cellar/libxml2/2.9.1/include/libxml2/
-LIBXMLLIB_PATH=/usr/local/Cellar/libxml2/2.9.1/include/libxml2/
-
-PKG_CXXFLAGS = -I. "-fopenmp" $(SHLIB_OPENMP_CXXFLAGS)  -I$(LIBXMLINC_PATH) -DRBUILD
-PKG_LIBS = @RCPP_PKG_LIBS@ -fopenmp -lgomp $(SHLIB_OPENMP_CXXFLAGS) -L$(LIBXMLLIB_PATH) -lxml2 -lm $(LAPACK_LIBS) 
-$(BLAS_LIBS) $(FLIBS)

@@ -1,3 +1,0 @@
-useDynLib(StochLib)
-exportPattern("^[[:alpha:]]+")
-import( Rcpp )

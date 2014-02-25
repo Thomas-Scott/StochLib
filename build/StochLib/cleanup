@@ -1,4 +1,0 @@
-rm src/Makevars
-rm src/*.o
-rm src/*.so
-rm src/symbols.rds

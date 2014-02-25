@@ -11,6 +11,7 @@
 *.rds
 output/*
 build/*
+build/*/*
 Makefile
 CMakeFiles
 PyStochLib/cmake_install.cmake
