@@ -326,7 +326,7 @@ namespace StochLib
 			std::string currentPath= cCurrentPath;
 
 			//updated so generated code path is a full path sanft 2011/03/21
-			std::string makeCommand=(std::string)"cd $STOCHKIT_HOME/src; make "+executableName+" GENERATED_CODE_PATH="+commandLine.getGeneratedCodeDir()+" --silent";
+			std::string makeCommand=(std::string)"cd $StochLib_HOME/src; make "+executableName+" GENERATED_CODE_PATH="+commandLine.getGeneratedCodeDir()+" --silent";
 
 			//redirect any errors from make to a log file
 			//updated so generated code path is a full path sanft 2011/03/21

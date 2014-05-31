@@ -50,7 +50,7 @@ set(LIBXML2_HEADERS ${XML2_INCLUDE_DIR}/)
 
 ## StochLib SRC
 
-file(GLOB_RECURSE STOCH_SRC CommandLineInterface.cpp Parameter.cpp Random.cpp StandardDriverUtilities.cpp TimeBasedTrigger.cpp ParallelIntervalSimulation.cpp SSADirectSerial.cpp StringCalculator.cpp ssa_direct_serial.cpp Input.ipp Input_tag.ipp SSA_Direct.ipp)
+file(GLOB_RECURSE STOCH_SRC CommandLineInterface.cpp Parameter.cpp Random.cpp StandardDriverUtilities.cpp TimeBasedTrigger.cpp ParallelIntervalSimulation.cpp SSADirectSerial.cpp StringCalculator.cpp ssa_direct_serial.cpp Input.ipp Input_tag.ipp SSA_Direct.ipp ssa_constant_serial.cpp ssa_lda_serial.cpp ssa_nrm_serial.cpp tau_leaping_exp_adapt.cpp tau_leaping_exp_adapt_serial.cpp ssa_odm_small.cpp ssa_odm.cpp)
 
 add_subdirectory(PyStochLib)
 add_subdirectory(StochLib)

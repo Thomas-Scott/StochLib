@@ -20,7 +20,7 @@
 namespace StochLib
 {
  template<typename _populationVectorType>
-//STOCHKIT BETA: update to have IntervalOutput member, rather than subclassing
+//StochLib BETA: update to have IntervalOutput member, rather than subclassing
   class StatsOutput : public IntervalOutput<_populationVectorType>
  {	
 public:

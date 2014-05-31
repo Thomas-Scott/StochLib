@@ -2,8 +2,8 @@
  *  FILE:    Random.h                                                         *
  ******************************************************************************/
 
-#ifndef STOCHKIT_RANDOM_H
-#define STOCHKIT_RANDOM_H
+#ifndef StochLib_RANDOM_H
+#define StochLib_RANDOM_H
 
 #include "StdOutputHandler.h"
 #include <vector>
