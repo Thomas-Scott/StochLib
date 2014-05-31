@@ -26,5 +26,3 @@ def ssaDirectSerial(model_name="",parallel=False):
 	else:
 		print "Not a model..."
 
-def count():
-	PyStochLib.count()

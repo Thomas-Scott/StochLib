@@ -229,6 +229,9 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 
 		if(cmdOptionExists(av, av+ac, "--seed")){
 			useSeed = true;
+			char * sd = getCmdOption(av,av+ac,"--seed");
+			int s = atoi(sd);
+			seed = s;
 		} else {
 			useSeed = false;
 		}
@@ -480,6 +483,9 @@ char ** CommandLineInterface::parseString(std::string str,int &ac){
 
 		if(cmdOptionExists(av, av+ac, "--seed")){
 			useSeed = true;
+			char * sd = getCmdOption(av,av+ac,"--seed");
+			int s = atoi(sd);
+			seed = s;
 		} else {
 			useSeed = false;
 		}

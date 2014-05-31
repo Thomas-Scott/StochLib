@@ -95,7 +95,9 @@ void ParallelIntervalSimulation::run(){
 			threadNumString=StandardDriverUtilities::size_t2string(omp_get_thread_num());
 			#pragma omp critical 
 			{
+				COUT << seedOfNewThread() << "\n";
 				seedString=StandardDriverUtilities::size_t2string(seedOfNewThread());
+				COUT << seedString << "\n";
 				vecPointer[omp_get_thread_num()] = subRealizations;
 				// COUT << "\nThread " << omp_get_thread_num() << " has " << vecPointer[omp_get_thread_num()];
 				// COUT.flush();
@@ -139,7 +141,7 @@ void ParallelIntervalSimulation::run(){
 			if (omp_get_thread_num()==0){
 				COUT << "\nInitialization complete. Simulating...";
 			}
-
+			COUT << parallelCommand << "\n";
 			ParallelIntervalSimulation::_parallel_ssaDirectSerial_subdriver(parallelCommand,commandLine);
 		}
 	}
